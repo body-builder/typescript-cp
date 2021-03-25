@@ -1,0 +1,11 @@
+{
+  "name": "typescript-cp",
+  "version": "0.1.0",
+  "description": "Copy non-typescript files to outDir",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benedek Káldi",
+  "license": "ISC"
+}
