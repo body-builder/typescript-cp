@@ -1,0 +1,11 @@
+# IDE
+/.idea
+
+# Node
+/package-lock.json
+/pnpm-lock.yaml
+
+# Source files
+/src
+/.editorconfig
+/tsconfig.json

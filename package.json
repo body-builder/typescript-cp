@@ -2,13 +2,30 @@
   "name": "typescript-cp",
   "version": "0.1.0",
   "description": "Copy non-typescript files to outDir",
-  "main": "dist/index.js",
+  "homepage": "https://github.com/body-builder/typescript-cp#readme",
+  "repository": "https://github.com/body-builder/typescript-cp",
+  "bugs": {
+    "url": "https://github.com/body-builder/typescript-cp/issues"
+  },
+  "keywords": [
+    "typescript",
+    "ts",
+    "file",
+    "asset",
+    "copy",
+    "watch",
+    "watcher",
+    "watchfile",
+    "fs"
+  ],
   "bin": {
     "tscp": "./dist/bin/tscp.js"
   },
   "scripts": {
     "start": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "release": "standard-version --sign",
+    "prepack": "npm run build"
   },
   "author": "Benedek Káldi",
   "license": "ISC",
