@@ -24,8 +24,9 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
+    "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea",
     "release": "standard-version --sign",
-    "prepack": "npm run build"
+    "prepack": "npm run clean && npm run build"
   },
   "author": "Benedek Káldi",
   "license": "ISC",
