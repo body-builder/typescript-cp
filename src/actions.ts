@@ -37,8 +37,8 @@ async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]
 		const { root_dir, out_dir, source_files } = project;
 
 		return await Promise.all(source_files.map(async (file) => {
-			const source_path = path.resolve(root_dir, file); // A path to the existing file
-			const target_path = path.resolve(out_dir, file); // A path to the new link
+			const source_path = path.resolve(root_dir, file); // The path to the source file
+			const target_path = path.resolve(out_dir, file); // The path to the file in the outDir
 
 			return { source_path, target_path };
 		}));

@@ -238,7 +238,7 @@ async function copy_file_or_directory(source_path: string, destination_path: str
 		return promisified.fs.mkdir(destination_path);
 	}
 
-	// console.log('COPY', link_target, 'to', link_path);
+	// console.log('COPY', source_path, 'to', destination_path);
 
 	return fse.copy(source_path, destination_path);
 }
