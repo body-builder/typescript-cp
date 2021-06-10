@@ -1,14 +1,14 @@
 import * as path from 'path';
 import chokidar from 'chokidar';
 import { color_log, console_colors, copy_file_or_directory, remove_file_or_directory, sleep } from './helpers';
-import { TsProjectWithFiles, TsProject } from './types';
+import { Config, TsProjectWithFiles, TsProject } from './types';
 import globby from 'globby';
 
 /**
  * @param projects
- * @param ignored_files
+ * @param config
  */
-async function collect_projects_files(projects: TsProject[], { ignored_files }): Promise<TsProjectWithFiles[]> {
+async function collect_projects_files(projects: TsProject[], config: Config): Promise<TsProjectWithFiles[]> {
 	// console.log('collect_projects_files');
 	if (!Array.isArray(projects)) {
 		throw new Error('No project data received');
@@ -19,7 +19,7 @@ async function collect_projects_files(projects: TsProject[], { ignored_files }):
 			cwd: project.root_dir,
 			dot: true,
 			onlyFiles: true,
-			ignore: ignored_files,
+			ignore: config.ignored_files,
 		});
 
 		return {
@@ -49,12 +49,11 @@ async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]
 
 /**
  * @param projects
- * @param cwd
- * @param ignored_files
+ * @param config
  */
-async function copy_files(projects: TsProject[], { cwd, ignored_files }): Promise<void> {
+async function copy_files(projects: TsProject[], config: Config): Promise<void> {
 	// console.log('copy_projects');
-	const globed_projects = await collect_projects_files(projects, { ignored_files });
+	const globed_projects = await collect_projects_files(projects, config);
 
 	const all_projects_files = await collect_projects_files_flat(globed_projects);
 
@@ -72,15 +71,14 @@ async function copy_files(projects: TsProject[], { cwd, ignored_files }): Promis
 
 /**
  * @param projects
- * @param cwd
- * @param ignored_files
+ * @param config
  */
-async function watch_files(projects: TsProject[], { cwd, ignored_files }): Promise<void> {
+async function watch_files(projects: TsProject[], config: Config): Promise<void> {
 	// console.log('watch_projects');
-	const globed_projects = await collect_projects_files(projects, { ignored_files });
+	const globed_projects = await collect_projects_files(projects, config);
 
 	const files_to_watch = globed_projects.map(({ root_dir }) => `${root_dir}/.`);
-	const ignore_glob = `{${ignored_files.map((rule) => `**/${rule}`).join(',')}}`;
+	const ignore_glob = `{${config.ignored_files.map((rule) => `**/${rule}`).join(',')}}`;
 
 	const watcher = chokidar.watch(files_to_watch, {
 		ignored: ignore_glob,

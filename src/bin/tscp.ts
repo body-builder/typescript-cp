@@ -6,12 +6,12 @@ import { color_log, console_colors, get_config, get_ts_project_paths, get_ts_pro
 async function command() {
 	const config = await get_config();
 
-	const { cli_options, cwd, ignored_files } = config;
+	const { cli_options } = config;
 
 	const projects = cli_options.build ? get_ts_projects_paths(config) : [get_ts_project_paths(config)];
 
 	if (cli_options.watch) {
-		return watch_files(projects, { cwd, ignored_files })
+		return watch_files(projects, config)
 			.then(() => {
 				if (projects) {
 					console.log('Starting the non-typescript file watcher...');
@@ -24,7 +24,7 @@ async function command() {
 			});
 	}
 
-	return copy_files(projects, { cwd, ignored_files })
+	return copy_files(projects, config)
 		.then(() => {
 			if (projects) {
 				console.log('Non-typescript files copied');

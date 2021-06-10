@@ -101,7 +101,7 @@ async function get_config(): Promise<Config> {
 
 	const { config: project_config } = result || {};
 
-	const default_config = {
+	const default_config: Config = {
 		cwd,
 		cli_options: options,
 		compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

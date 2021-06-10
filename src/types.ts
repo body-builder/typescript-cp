@@ -10,8 +10,8 @@ export interface Config {
 	cwd: string;
 	cli_options: CliOptions,
 	ts_config: ParsedCommandLine,
-	compiled_files: [];
-	ignored_files: [];
+	compiled_files: string[];
+	ignored_files: string[];
 }
 
 export interface TsProject {
