@@ -92,6 +92,9 @@ program.parse(process.argv);
 // @ts-ignore
 const options: CliOptions = program.opts();
 
+/**
+ * Returns the complete, resolved configuration object
+ */
 async function get_config(): Promise<Config> {
 	const cwd = process.cwd();
 
@@ -121,7 +124,12 @@ async function get_config(): Promise<Config> {
 	return config;
 }
 
-function get_ts_config(currentDir: string, project: string) {
+/**
+ * Finds the `project` config file in `currentDir` and parses it with Typescript's own parser
+ * @param currentDir
+ * @param project
+ */
+function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
 	const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
 	if (!configFile) throw Error('tsconfig.json not found')
@@ -131,6 +139,12 @@ function get_ts_config(currentDir: string, project: string) {
 	return ts.parseJsonConfigFileContent(config, ts.sys, currentDir);
 }
 
+/**
+ * Creates an internal project descriptor for one Typescript project
+ * @param cwd
+ * @param project_path
+ * @param ts_config
+ */
 function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
 	const currentDirName = path.basename(path.resolve());
 	const referenceName = path.relative(process.cwd(), cwd);
@@ -155,12 +169,20 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 	};
 }
 
+/**
+ * Returns the internal project descriptor of a TS project that doesn't have project references
+ * @param options
+ */
 function get_ts_project_paths(options: Config): TsProject {
 	const { cwd, cli_options, ts_config } = options;
 
 	return build_project_path(cwd, cli_options.project, ts_config);
 }
 
+/**
+ * Returns the internal project descriptor of a TS project that has project references
+ * @param options
+ */
 function get_ts_projects_paths(options: Config): TsProject[] {
 	const { ts_config } = options;
 
@@ -185,12 +207,17 @@ function get_ts_projects_paths(options: Config): TsProject[] {
 	});
 }
 
+/**
+ * Displays a colored log in the stdout
+ * @param msg
+ * @param color
+ */
 function color_log(msg: string, color: typeof console_colors[keyof typeof console_colors]): string {
 	return `${color}${msg}${console_colors.Reset}`;
 }
 
 /**
- * Makes sure that the given folder exists - creates if not
+ * Makes sure that the given folder (or the parent folder of a file) exists - creates if not
  * @param p {string}
  */
 async function validate_path(p: string): Promise<void> {
@@ -214,7 +241,7 @@ async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
 }
 
 /**
- *
+ * Deletes the `file_path` file. Doesn't throw error if the file doesn't exist.
  * @param file_path
  */
 async function remove_file_or_directory(file_path: string): Promise<void> {
@@ -231,6 +258,12 @@ async function remove_file_or_directory(file_path: string): Promise<void> {
 
 const files_without_loaders: string[] = [];
 
+/**
+ * Reads the content of the `source_path` file, applies the loaders on its content, and writes the processed content to `destination_path`
+ * @param source_path
+ * @param destination_path
+ * @param config
+ */
 async function copy_file_or_directory(source_path: string, destination_path: string, config: Config) {
 	const stats = await get_file_stats(source_path);
 
@@ -255,6 +288,13 @@ async function copy_file_or_directory(source_path: string, destination_path: str
 	return promisified.fse.writeFile(destination_path, processed_content, 'utf8');
 }
 
+/**
+ * Passes the content of the source file to each loader in sequence and returns a Promise with the final content
+ * @param raw_content
+ * @param source_path
+ * @param destination_path
+ * @param config
+ */
 async function apply_loaders(raw_content: string, source_path: string, destination_path: string, config: Config): Promise<string> {
 	let processed_content = raw_content;
 
@@ -299,6 +339,10 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
 	return processed_content;
 }
 
+/**
+ * Returns a Promise that resolves automatically after `ms`
+ * @param ms
+ */
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }

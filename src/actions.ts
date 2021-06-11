@@ -5,6 +5,7 @@ import { Config, TsProjectWithFiles, TsProject } from './types';
 import globby from 'globby';
 
 /**
+ * Returns an extended TsProject array, containing also the paths of all files in the project that will be processed
  * @param projects
  * @param config
  */
@@ -30,6 +31,7 @@ async function collect_projects_files(projects: TsProject[], config: Config): Pr
 }
 
 /**
+ * Returns a flat array with the source and target paths of all files that will be processed
  * @param globed_projects
  */
 async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]): Promise<{ source_path: string; target_path: string; }[]> {
@@ -48,6 +50,7 @@ async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]
 }
 
 /**
+ * Copies all files from the source path to the output path
  * @param projects
  * @param config
  */
@@ -70,6 +73,7 @@ async function copy_files(projects: TsProject[], config: Config): Promise<void> 
 }
 
 /**
+ * Starts a watcher listening to the changes in the source path and synchronizing them to the output path
  * @param projects
  * @param config
  */
@@ -85,7 +89,7 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 	});
 
 	/**
-	 * Find the TS project to which the requested file belongs to
+	 * Find the TS project the requested file belongs to
 	 * @param source_path
 	 */
 	function get_target_path(source_path: string): { project_name: string; filename: string; source_path: string; target_path: string; } {
