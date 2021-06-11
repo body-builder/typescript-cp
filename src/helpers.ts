@@ -6,12 +6,13 @@ import fse from 'fs-extra';
 import pify from 'pify';
 import rimraf from 'rimraf';
 import { cosmiconfig } from 'cosmiconfig';
-import { CliOptions, Config, TsProject } from './types';
+import { CliOptions, Config, LoaderMeta, TsProject } from './types';
 
 const promisified = {
 	fs: {
 		...pify(fs),
 		exists: pify(fs.exists, { errorFirst: false }),
+		mkdir: pify(fs.mkdir, { errorFirst: false }),
 	},
 	fse: pify(fse),
 	rimraf: pify(rimraf),
@@ -106,6 +107,7 @@ async function get_config(): Promise<Config> {
 		cli_options: options,
 		compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
 		ignored_files: ['node_modules'],
+		rules: [],
 		ts_config,
 	};
 
@@ -189,11 +191,13 @@ function color_log(msg: string, color: typeof console_colors[keyof typeof consol
 
 /**
  * Makes sure that the given folder exists - creates if not
- * @param path {string}
+ * @param p {string}
  */
-async function validate_path(path: string): Promise<void> {
-	if (!await promisified.fs.exists(path)) {
-		await promisified.fs.mkdir(path, { recursive: true });
+async function validate_path(p: string): Promise<void> {
+	const dirname = path.dirname(p);
+
+	if (!await promisified.fs.exists(dirname)) {
+		await promisified.fs.mkdir(dirname, { recursive: true });
 	}
 }
 
@@ -225,7 +229,9 @@ async function remove_file_or_directory(file_path: string): Promise<void> {
 	return promisified.rimraf(file_path);
 }
 
-async function copy_file_or_directory(source_path: string, destination_path: string) {
+const files_without_loaders: string[] = [];
+
+async function copy_file_or_directory(source_path: string, destination_path: string, config: Config) {
 	const stats = await get_file_stats(source_path);
 
 	if (!stats) {
@@ -240,7 +246,57 @@ async function copy_file_or_directory(source_path: string, destination_path: str
 
 	// console.log('COPY', source_path, 'to', destination_path);
 
-	return fse.copy(source_path, destination_path);
+	const raw_content = await promisified.fse.readFile(source_path, 'utf8');
+
+	const processed_content = await apply_loaders(raw_content, source_path, destination_path, config);
+
+	await validate_path(destination_path);
+
+	return promisified.fse.writeFile(destination_path, processed_content, 'utf8');
+}
+
+async function apply_loaders(raw_content: string, source_path: string, destination_path: string, config: Config): Promise<string> {
+	let processed_content = raw_content;
+
+	const should_process_file = files_without_loaders.indexOf(source_path) === -1;
+
+	if (should_process_file) {
+		const used_rules = config.rules.filter((rule) => rule.test.test(source_path));
+
+		if (!used_rules.length) {
+			files_without_loaders.push(source_path);
+			return raw_content;
+		}
+
+		const loaderMeta: LoaderMeta = {
+			source_path,
+			destination_path,
+			config,
+		};
+
+		processed_content = await used_rules.reduce((content, rule) => {
+			return [...rule.use].reverse().reduce((content, loader) => {
+					let loaderFn;
+
+					switch (typeof loader.loader) {
+						case 'function':
+							loaderFn = loader.loader;
+							break;
+						case 'string':
+							loaderFn = require(path.resolve(loader.loader));
+							break;
+						default:
+							throw new Error('Invalid loader type')
+					}
+
+					return loaderFn(content, loaderMeta);
+				},
+				processed_content,
+			);
+		}, processed_content);
+	}
+
+	return processed_content;
 }
 
 function sleep(ms) {

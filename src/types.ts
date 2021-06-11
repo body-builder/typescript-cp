@@ -12,6 +12,24 @@ export interface Config {
 	ts_config: ParsedCommandLine,
 	compiled_files: string[];
 	ignored_files: string[];
+	rules: Rule[];
+}
+
+export interface Rule {
+	test: RegExp;
+	use: Loader[];
+	options: { [key: string]: any }
+}
+export interface Loader {
+	loader: LoaderFunction | string;
+}
+
+export type LoaderFunction = (content: string, meta: LoaderMeta) => string;
+
+export type LoaderMeta = {
+	source_path: string;
+	destination_path: string;
+	config: Config;
 }
 
 export interface TsProject {

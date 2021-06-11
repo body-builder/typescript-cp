@@ -65,7 +65,7 @@ async function copy_files(projects: TsProject[], config: Config): Promise<void> 
 
 	// Link files
 	await Promise.all(all_projects_files.map(async ({ source_path, target_path }) => {
-		return copy_file_or_directory(source_path, target_path);
+		return copy_file_or_directory(source_path, target_path, config);
 	}));
 }
 
@@ -129,7 +129,7 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 		})
 		.on('add', async (source_path) => {
 			const { target_path, project_name, filename } = get_target_path(source_path);
-			await copy_file_or_directory(source_path, target_path);
+			await copy_file_or_directory(source_path, target_path, config);
 			// Do not pollute the console with the bootstrapping data
 			if (isReady) {
 				console.log(color_log(`${project_name}/${filename}`, console_colors.FgGreen), 'added');
@@ -138,7 +138,7 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 		})
 		.on('change', async (source_path) => {
 			const { target_path, project_name, filename } = get_target_path(source_path);
-			await copy_file_or_directory(source_path, target_path);
+			await copy_file_or_directory(source_path, target_path, config);
 			console.log(color_log(`${project_name}/${filename}`, console_colors.FgYellow), 'changed');
 			await watch_idle_log();
 		})
