@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/body-builder/typescript-cp/compare/v0.1.1...v0.1.2) (2021-06-14)
+
+
+### Bug Fixes
+
+* Version bump after accidentally published v0.1.1 ([fa9b4fd](https://github.com/body-builder/typescript-cp/commit/fa9b4fdc4860ebc4c9f311272487be7311249e0f))
+
 ### [0.1.1](https://github.com/body-builder/typescript-cp/compare/v0.1.0...v0.1.1) (2021-06-14)
 
 
