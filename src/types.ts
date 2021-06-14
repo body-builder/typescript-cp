@@ -35,9 +35,17 @@ export type RuleCondition =
 export type RuleConditions = RuleCondition[];
 
 export interface Loader {
-	loader: LoaderFunction | string;
+	/**
+	 * A path reference to the loader function, or the loader function itself.
+	 */
+	loader:
+		| string
+		| LoaderFunction;
 }
 
+/**
+ * The loader function accepts the actual content of the given file as the first parameter, and must return the content of the output file.
+ */
 export type LoaderFunction = (content: string, meta: LoaderMeta) => string;
 
 export type LoaderMeta = {

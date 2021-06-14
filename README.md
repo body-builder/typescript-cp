@@ -56,6 +56,43 @@ package.json
 }
 ```
 
+# Loaders
+
+You can attach basic loader rules to the files. Loaders accept the actual content of the given file as the first parameter, and must return the content of the output file.
+
+.tscprc.js
+```js
+const path = require('path');
+
+/**
+ * @type {import('typescript-cp/dist/types').Config}
+ */
+module.exports = {
+  rules: [
+    {
+      test: /\.(scss|sass)$/,
+      include: [
+        path.resolve('./file-to-include.css'),
+      ],
+      exclude: (source_path) => {
+        return source_path.indexOf('file-to-include.sass') > -1;
+      },
+      use: [
+        {
+          loader: (content, meta) => {
+            // Do something with `content`
+
+            return content;
+          },
+        },
+      ],
+    },
+  ],
+};
+```
+
+See `Config` and `Rule` types in `src/types.ts` for the complete reference.
+
 
 ## Contribution
 
