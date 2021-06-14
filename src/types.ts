@@ -16,10 +16,24 @@ export interface Config {
 }
 
 export interface Rule {
-	test: RegExp;
+	test?: RuleCondition;
+	include?: RuleCondition;
+	exclude?: RuleCondition;
 	use: Loader[];
 	options: { [key: string]: any }
 }
+
+/**
+ * Resource paths always meant to be absolute paths.
+ */
+export type RuleCondition =
+	| RegExp
+	| string
+	| ((path: string) => boolean)
+	| RuleConditions;
+
+export type RuleConditions = RuleCondition[];
+
 export interface Loader {
 	loader: LoaderFunction | string;
 }

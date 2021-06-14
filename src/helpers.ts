@@ -6,7 +6,7 @@ import fse from 'fs-extra';
 import pify from 'pify';
 import rimraf from 'rimraf';
 import { cosmiconfig } from 'cosmiconfig';
-import { CliOptions, Config, LoaderMeta, TsProject } from './types';
+import { CliOptions, Config, LoaderMeta, Rule, RuleCondition, TsProject } from './types';
 
 const promisified = {
 	fs: {
@@ -289,6 +289,59 @@ async function copy_file_or_directory(source_path: string, destination_path: str
 }
 
 /**
+ * Tests the given `source_path` against a given rule condition
+ * @param source_path
+ * @param rule_condition
+ * @param config
+ */
+function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
+	if (Array.isArray(rule_condition)) {
+		return rule_condition.every((sub_condition) => test_rule_condition(source_path, sub_condition, config));
+	}
+
+	// An exact absolute path string
+	if (typeof rule_condition === 'string') {
+		return rule_condition === source_path;
+	}
+
+	if (rule_condition instanceof RegExp) {
+ 		return rule_condition.test(source_path);
+	}
+
+	if (typeof rule_condition === 'function') {
+		return rule_condition(source_path);
+	}
+
+	return false;
+}
+
+/**
+ * Tests the given `source_path` against every rule conditions
+ * @param source_path
+ * @param rule
+ * @param config
+ */
+function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
+	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
+	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
+	const isExcluded: boolean | null  = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
+
+	if (isIncluded === true) {
+		return true;
+	}
+
+	if (isExcluded === true) {
+		return false;
+	}
+
+	if (isMatching === true) {
+		return true
+	}
+
+	return false;
+}
+
+/**
  * Passes the content of the source file to each loader in sequence and returns a Promise with the final content
  * @param raw_content
  * @param source_path
@@ -301,7 +354,7 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
 	const should_process_file = files_without_loaders.indexOf(source_path) === -1;
 
 	if (should_process_file) {
-		const used_rules = config.rules.filter((rule) => rule.test.test(source_path));
+		const used_rules = config.rules.filter((rule) => apply_rule_condition(source_path, rule, config));
 
 		if (!used_rules.length) {
 			files_without_loaders.push(source_path);
