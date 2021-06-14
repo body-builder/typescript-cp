@@ -1,12 +1,12 @@
 import { ParsedCommandLine } from 'typescript';
 
-export interface CliOptions {
+export type CliOptions = {
 	watch?: boolean;
 	build?: boolean;
 	project: string;
 }
 
-export interface Config {
+export type Config = {
 	cwd: string;
 	cli_options: CliOptions,
 	ts_config: ParsedCommandLine,
@@ -15,7 +15,7 @@ export interface Config {
 	rules: Rule[];
 }
 
-export interface Rule {
+export type Rule = {
 	test?: RuleCondition;
 	include?: RuleCondition;
 	exclude?: RuleCondition;
@@ -34,7 +34,7 @@ export type RuleCondition =
 
 export type RuleConditions = RuleCondition[];
 
-export interface Loader {
+export type Loader = {
 	/**
 	 * A path reference to the loader function, or the loader function itself.
 	 */
@@ -54,7 +54,7 @@ export type LoaderMeta = {
 	config: Config;
 }
 
-export interface TsProject {
+export type TsProject = {
 	project_name: string;
 	base_path: string;
 	ts_config_path: string;
@@ -62,6 +62,6 @@ export interface TsProject {
 	out_dir: string;
 }
 
-export interface TsProjectWithFiles extends TsProject {
+export type TsProjectWithFiles = TsProject & {
 	source_files: string[];
 }
