@@ -1,6 +1,13 @@
 import * as path from 'path';
 import chokidar from 'chokidar';
-import { color_log, console_colors, copy_file_or_directory, remove_file_or_directory, sleep } from './helpers';
+import {
+	color_log,
+	console_colors,
+	copy_file_or_directory,
+	definitely_posix,
+	remove_file_or_directory,
+	sleep,
+} from './helpers';
 import { Config, TsProjectWithFiles, TsProject } from './types';
 import globby from 'globby';
 
@@ -131,22 +138,25 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 			await watch_idle_log();
 			isReady = true;
 		})
-		.on('add', async (source_path) => {
+		.on('add', async (unsafe_source_path) => {
+			const source_path = definitely_posix(unsafe_source_path);
 			const { target_path, project_name, filename } = get_target_path(source_path);
-			await copy_file_or_directory(source_path, target_path, config);
+			await copy_file_or_directory(unsafe_source_path, target_path, config);
 			// Do not pollute the console with the bootstrapping data
 			if (isReady) {
 				console.log(color_log(`${project_name}/${filename}`, console_colors.FgGreen), 'added');
 				await watch_idle_log();
 			}
 		})
-		.on('change', async (source_path) => {
+		.on('change', async (unsafe_source_path) => {
+			const source_path = definitely_posix(unsafe_source_path);
 			const { target_path, project_name, filename } = get_target_path(source_path);
 			await copy_file_or_directory(source_path, target_path, config);
 			console.log(color_log(`${project_name}/${filename}`, console_colors.FgYellow), 'changed');
 			await watch_idle_log();
 		})
-		.on('unlink', async (source_path) => {
+		.on('unlink', async (unsafe_source_path) => {
+			const source_path = definitely_posix(unsafe_source_path);
 			const { target_path, project_name, filename } = get_target_path(source_path);
 			await remove_file_or_directory(target_path);
 			console.log(color_log(`${project_name}/${filename}`, console_colors.FgRed), 'deleted');

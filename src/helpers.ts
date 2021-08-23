@@ -305,7 +305,7 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
 	}
 
 	if (rule_condition instanceof RegExp) {
- 		return rule_condition.test(source_path);
+		return rule_condition.test(source_path);
 	}
 
 	if (typeof rule_condition === 'function') {
@@ -324,7 +324,7 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
 function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
 	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
 	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
-	const isExcluded: boolean | null  = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
+	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
 
 	if (isIncluded === true) {
 		return true;
@@ -400,6 +400,15 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Converts your path `p` to POSIX format irrespective of whether you're already on POSIX platforms, or on win32
+ * @param p path string
+ * @see https://stackoverflow.com/a/63251716/3111787
+ */
+function definitely_posix(p) {
+	return p.split(path.sep).join(path.posix.sep);
+}
+
 export {
 	get_config,
 	get_ts_config,
@@ -410,6 +419,7 @@ export {
 	remove_file_or_directory,
 	copy_file_or_directory,
 	sleep,
+	definitely_posix,
 	promisified,
 	console_colors,
 	color_log,
