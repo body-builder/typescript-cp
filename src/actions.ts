@@ -1,4 +1,5 @@
 import * as path from 'path';
+import globby from 'globby';
 import chokidar from 'chokidar';
 import {
 	color_log,
@@ -8,8 +9,7 @@ import {
 	remove_file_or_directory,
 	sleep,
 } from './helpers';
-import { Config, TsProjectWithFiles, TsProject } from './types';
-import globby from 'globby';
+import { Config, TsProject, TsProjectWithFiles } from './types';
 
 /**
  * Returns an extended TsProject array, containing also the paths of all files in the project that will be processed
