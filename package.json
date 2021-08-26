@@ -24,7 +24,7 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
-    "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea",
+    "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version --sign",
     "prepack": "npm run clean && npm run build"
   },
