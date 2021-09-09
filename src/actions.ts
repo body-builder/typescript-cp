@@ -6,6 +6,7 @@ import {
 	console_colors,
 	copy_file_or_directory,
 	definitely_posix,
+	get_ignore_list,
 	remove_file_or_directory,
 	sleep,
 } from './helpers';
@@ -27,7 +28,7 @@ async function collect_projects_files(projects: TsProject[], config: Config): Pr
 			cwd: project.root_dir,
 			dot: true,
 			onlyFiles: true,
-			ignore: config.ignored_files,
+			ignore: get_ignore_list(config, project),
 		});
 
 		return {
@@ -89,7 +90,13 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 	const globed_projects = await collect_projects_files(projects, config);
 
 	const files_to_watch = globed_projects.map(({ root_dir }) => `${root_dir}/.`);
-	const ignore_glob = `{${config.ignored_files.map((rule) => `**/${rule}`).join(',')}}`;
+	const ignore_glob = `{${get_ignore_list(config, projects).map((rule) => {
+		if (!rule.startsWith('**/')) {
+			return `**/${rule}`;
+		}
+
+		return rule;
+	}).join(',')}}`;
 
 	const watcher = chokidar.watch(files_to_watch, {
 		ignored: ignore_glob,

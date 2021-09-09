@@ -96,7 +96,7 @@ const options: CliOptions = program.opts();
  * Returns the complete, resolved configuration object
  */
 async function get_config(): Promise<Config> {
-	const cwd = process.cwd();
+	const cwd = definitely_posix(process.cwd());
 
 	const ts_config = get_ts_config(cwd, options.project);
 
@@ -108,10 +108,11 @@ async function get_config(): Promise<Config> {
 	const default_config: Config = {
 		cwd,
 		cli_options: options,
+		ts_config,
+		use_ts_exclude: true,
 		compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
 		ignored_files: ['node_modules'],
 		rules: [],
-		ts_config,
 	};
 
 	const config = {
@@ -150,6 +151,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 	const referenceName = path.relative(process.cwd(), cwd);
 	const projectName = path.join(currentDirName, referenceName);
 
+	const { exclude } = ts_config.raw;
 	const { rootDir, outDir } = ts_config.options;
 
 	if (!rootDir) {
@@ -166,6 +168,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 		ts_config_path: project_path,
 		root_dir: rootDir,
 		out_dir: outDir,
+		exclude,
 	};
 }
 
@@ -205,6 +208,37 @@ function get_ts_projects_paths(options: Config): TsProject[] {
 
 		return build_project_path(cwd, reference.originalPath!, referenceConfig);
 	});
+}
+
+/**
+ * Combines the exclude pattern in the tsconfig file and the TSCP `config.ignored_files`
+ * @param config
+ * @param projects
+ */
+function get_ignore_list(config: Config, projects: TsProject | TsProject[]): string[] {
+	const ignore_list: string[] = [];
+
+	if (config.use_ts_exclude) {
+		const safe_projects = !Array.isArray(projects) ? [projects] : projects;
+
+		const ts_exclude_list = safe_projects.map((project) => {
+			return project.exclude.map((rule) => {
+				// Handle if the exclude pattern contains the name of the root directory
+				const rootDirName = project.root_dir.replace(project.base_path + '/', '') + '/';
+				if (rule.startsWith(rootDirName)) {
+					return rule.replace(rootDirName, '');
+				}
+
+				return rule;
+			});
+		}).flat();
+
+		ignore_list.push(...ts_exclude_list)
+	}
+
+	ignore_list.push(...config.ignored_files);
+
+	return ignore_list;
 }
 
 /**
@@ -414,6 +448,7 @@ export {
 	get_ts_config,
 	get_ts_project_paths,
 	get_ts_projects_paths,
+	get_ignore_list,
 	validate_path,
 	get_file_stats,
 	remove_file_or_directory,

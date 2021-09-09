@@ -51,8 +51,9 @@ package.json
 .tscprc
 ```json5
 {
-  "ignored_files": ['**/an_ignored_file.ext'], // files not to copy (defaults to ['node_modules'])
-  "compiled_files": [] // files compiled by TS (these also get ignored) (defaults to ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'])
+  "ignored_files": ['**/an_ignored_file.ext'], // files not to copy (defaults to `['node_modules']`)
+  "compiled_files": [], // files compiled by TS (these also get ignored) (defaults to `['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx']`)
+  "use_ts_exclude": true, // ignore files that are listed in the tsconfig `exclude` array (defaults to `true`)
 }
 ```
 

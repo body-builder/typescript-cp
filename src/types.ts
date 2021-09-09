@@ -10,6 +10,7 @@ export type Config = {
 	cwd: string;
 	cli_options: CliOptions,
 	ts_config: ParsedCommandLine,
+	use_ts_exclude: boolean;
 	compiled_files: string[];
 	ignored_files: string[];
 	rules: Rule[];
@@ -60,6 +61,7 @@ export type TsProject = {
 	ts_config_path: string;
 	root_dir: string;
 	out_dir: string;
+	exclude: string[];
 }
 
 export type TsProjectWithFiles = TsProject & {
