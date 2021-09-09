@@ -396,7 +396,7 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
  * Returns a Promise that resolves automatically after `ms`
  * @param ms
  */
-function sleep(ms) {
+function sleep(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -405,7 +405,7 @@ function sleep(ms) {
  * @param p path string
  * @see https://stackoverflow.com/a/63251716/3111787
  */
-function definitely_posix(p) {
+function definitely_posix(p: string) {
 	return p.split(path.sep).join(path.posix.sep);
 }
 
