@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/body-builder/typescript-cp/compare/v0.1.3...v0.1.4) (2021-09-09)
+
+
+### Features
+
+* Ignore files that are listed in the tsconfig `exclude` array ([e95833d](https://github.com/body-builder/typescript-cp/commit/e95833d52b94738c04c201c9aa1a8849c98cd5c7))
+
 ### [0.1.3](https://github.com/body-builder/typescript-cp/compare/v0.1.2...v0.1.3) (2021-08-26)
 
 
