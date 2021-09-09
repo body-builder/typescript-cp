@@ -17,7 +17,7 @@ import { Config, TsProject, TsProjectWithFiles } from './types';
  * @param projects
  * @param config
  */
-async function collect_projects_files(projects: TsProject[], config: Config): Promise<TsProjectWithFiles[]> {
+export async function collect_projects_files(projects: TsProject[], config: Config): Promise<TsProjectWithFiles[]> {
 	// console.log('collect_projects_files');
 	if (!Array.isArray(projects)) {
 		throw new Error('No project data received');
@@ -42,7 +42,7 @@ async function collect_projects_files(projects: TsProject[], config: Config): Pr
  * Returns a flat array with the source and target paths of all files that will be processed
  * @param globed_projects
  */
-async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]): Promise<{ source_path: string; target_path: string; }[]> {
+export async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]): Promise<{ source_path: string; target_path: string; }[]> {
 	const all_projects_files = await Promise.all(globed_projects.map(async (project) => {
 		const { root_dir, out_dir, source_files } = project;
 
@@ -62,7 +62,7 @@ async function collect_projects_files_flat(globed_projects: TsProjectWithFiles[]
  * @param projects
  * @param config
  */
-async function copy_files(projects: TsProject[], config: Config): Promise<void> {
+export async function copy_files(projects: TsProject[], config: Config): Promise<void> {
 	// console.log('copy_projects');
 	const globed_projects = await collect_projects_files(projects, config);
 
@@ -85,7 +85,7 @@ async function copy_files(projects: TsProject[], config: Config): Promise<void> 
  * @param projects
  * @param config
  */
-async function watch_files(projects: TsProject[], config: Config): Promise<void> {
+export async function watch_files(projects: TsProject[], config: Config): Promise<void> {
 	// console.log('watch_projects');
 	const globed_projects = await collect_projects_files(projects, config);
 
@@ -179,11 +179,4 @@ async function watch_files(projects: TsProject[], config: Config): Promise<void>
 			// console.log('SIGTERM, closing watcher');
 			await close_watcher();
 		});
-}
-
-export {
-	collect_projects_files,
-	collect_projects_files_flat,
-	copy_files,
-	watch_files,
 }

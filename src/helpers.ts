@@ -8,7 +8,7 @@ import rimraf from 'rimraf';
 import { cosmiconfig } from 'cosmiconfig';
 import { CliOptions, Config, LoaderMeta, Rule, RuleCondition, TsProject } from './types';
 
-const promisified = {
+export const promisified = {
 	fs: {
 		...pify(fs),
 		exists: pify(fs.exists, { errorFirst: false }),
@@ -20,7 +20,7 @@ const promisified = {
 
 // https://stackoverflow.com/a/41407246/3111787
 // https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-enum console_colors {
+export enum console_colors {
 	Reset = '\x1b[0m',
 	Bright = '\x1b[1m',
 	Dim = '\x1b[2m',
@@ -95,7 +95,7 @@ const options: CliOptions = program.opts();
 /**
  * Returns the complete, resolved configuration object
  */
-async function get_config(): Promise<Config> {
+export async function get_config(): Promise<Config> {
 	const cwd = definitely_posix(process.cwd());
 
 	const ts_config = get_ts_config(cwd, options.project);
@@ -130,7 +130,7 @@ async function get_config(): Promise<Config> {
  * @param currentDir
  * @param project
  */
-function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
+export function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
 	const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
 	if (!configFile) throw Error('tsconfig.json not found')
@@ -176,7 +176,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
  * Returns the internal project descriptor of a TS project that doesn't have project references
  * @param options
  */
-function get_ts_project_paths(options: Config): TsProject {
+export function get_ts_project_paths(options: Config): TsProject {
 	const { cwd, cli_options, ts_config } = options;
 
 	return build_project_path(cwd, cli_options.project, ts_config);
@@ -186,7 +186,7 @@ function get_ts_project_paths(options: Config): TsProject {
  * Returns the internal project descriptor of a TS project that has project references
  * @param options
  */
-function get_ts_projects_paths(options: Config): TsProject[] {
+export function get_ts_projects_paths(options: Config): TsProject[] {
 	const { ts_config } = options;
 
 	if (!ts_config.projectReferences) {
@@ -215,7 +215,7 @@ function get_ts_projects_paths(options: Config): TsProject[] {
  * @param config
  * @param projects
  */
-function get_ignore_list(config: Config, projects: TsProject | TsProject[]): string[] {
+export function get_ignore_list(config: Config, projects: TsProject | TsProject[]): string[] {
 	const ignore_list: string[] = [];
 
 	if (config.use_ts_exclude) {
@@ -246,7 +246,7 @@ function get_ignore_list(config: Config, projects: TsProject | TsProject[]): str
  * @param msg
  * @param color
  */
-function color_log(msg: string, color: typeof console_colors[keyof typeof console_colors]): string {
+export function color_log(msg: string, color: typeof console_colors[keyof typeof console_colors]): string {
 	return `${color}${msg}${console_colors.Reset}`;
 }
 
@@ -254,7 +254,7 @@ function color_log(msg: string, color: typeof console_colors[keyof typeof consol
  * Makes sure that the given folder (or the parent folder of a file) exists - creates if not
  * @param p {string}
  */
-async function validate_path(p: string): Promise<void> {
+export async function validate_path(p: string): Promise<void> {
 	const dirname = path.dirname(p);
 
 	if (!await promisified.fs.exists(dirname)) {
@@ -266,7 +266,7 @@ async function validate_path(p: string): Promise<void> {
  * Error-safe `fs.lstat` - returns stats if the file exists, otherwise null
  * @param file_path
  */
-async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
+export async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
 	try {
 		return await promisified.fse.lstat(file_path);
 	} catch (e) {
@@ -278,7 +278,7 @@ async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
  * Deletes the `file_path` file. Doesn't throw error if the file doesn't exist.
  * @param file_path
  */
-async function remove_file_or_directory(file_path: string): Promise<void> {
+export async function remove_file_or_directory(file_path: string): Promise<void> {
 	const stats = await get_file_stats(file_path);
 
 	if (!stats) {
@@ -298,7 +298,7 @@ const files_without_loaders: string[] = [];
  * @param destination_path
  * @param config
  */
-async function copy_file_or_directory(source_path: string, destination_path: string, config: Config) {
+export async function copy_file_or_directory(source_path: string, destination_path: string, config: Config) {
 	const stats = await get_file_stats(source_path);
 
 	if (!stats) {
@@ -430,7 +430,7 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
  * Returns a Promise that resolves automatically after `ms`
  * @param ms
  */
-function sleep(ms: number) {
+export function sleep(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -439,23 +439,6 @@ function sleep(ms: number) {
  * @param p path string
  * @see https://stackoverflow.com/a/63251716/3111787
  */
-function definitely_posix(p: string) {
+export function definitely_posix(p: string) {
 	return p.split(path.sep).join(path.posix.sep);
 }
-
-export {
-	get_config,
-	get_ts_config,
-	get_ts_project_paths,
-	get_ts_projects_paths,
-	get_ignore_list,
-	validate_path,
-	get_file_stats,
-	remove_file_or_directory,
-	copy_file_or_directory,
-	sleep,
-	definitely_posix,
-	promisified,
-	console_colors,
-	color_log,
-};
