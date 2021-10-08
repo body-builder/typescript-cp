@@ -3,6 +3,11 @@
 import { copy_files, watch_files } from '../actions';
 import { color_log, console_colors, get_config, get_ts_project_paths, get_ts_projects_paths } from '../helpers';
 
+process.on('unhandledRejection', e => {
+	console.error(e);
+	process.exit(1);
+});
+
 async function command() {
 	const config = await get_config();
 
