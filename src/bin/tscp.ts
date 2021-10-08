@@ -20,7 +20,8 @@ async function command() {
 				}
 			})
 			.catch((e) => {
-				console.error('Something went wrong during watching the non-typescript files', '\n', e);
+				console.error('Something went wrong during watching the non-typescript files');
+				throw e;
 			});
 	}
 
@@ -34,7 +35,8 @@ async function command() {
 			}
 		})
 		.catch((e) => {
-			console.error('Something went wrong during the copy of the non-typescript files', '\n', e);
+			console.error('Something went wrong during the copy of the non-typescript files');
+			throw e;
 		});
 }
 
