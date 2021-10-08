@@ -168,7 +168,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 		ts_config_path: project_path,
 		root_dir: rootDir,
 		out_dir: outDir,
-		exclude,
+		exclude: exclude || [],
 	};
 }
 
