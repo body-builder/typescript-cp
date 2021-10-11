@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.5](https://github.com/body-builder/typescript-cp/compare/v0.1.4...v0.1.5) (2021-10-11)
+
+
+### Bug Fixes
+
+* Exit with code 1 on unhandled rejections ([b8dd583](https://github.com/body-builder/typescript-cp/commit/b8dd5830d4166bba602608f9693c92d0ee43ea25))
+* Provide fallback if tsconfig exclude array is undefined ([7670483](https://github.com/body-builder/typescript-cp/commit/76704836e0c9603fbb88e24c09429e4d2d31df8b))
+* Re-throw errors in `watch_files`/`copy_files` processes ([af01dad](https://github.com/body-builder/typescript-cp/commit/af01dada54f5814702eba0272a61b9a77644c163))
+
 ### [0.1.4](https://github.com/body-builder/typescript-cp/compare/v0.1.3...v0.1.4) (2021-09-09)
 
 
