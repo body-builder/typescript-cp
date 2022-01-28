@@ -355,14 +355,21 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
  * @param rule
  * @param config
  */
+// TODO Do not call exclude if test = /\.(scss|sass)$/ and source_path = 'jsfile.js'
 function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
 	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
 	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
-	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
 
 	if (isIncluded === true) {
 		return true;
 	}
+
+	// Do not test further, if not matching and not included
+	if (isMatching === false) {
+		return false;
+	}
+
+	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
 
 	if (isExcluded === true) {
 		return false;
