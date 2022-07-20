@@ -313,13 +313,13 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 
 	// console.log('COPY', source_path, 'to', destination_path);
 
-	const raw_content = await promisified.fse.readFile(source_path, 'utf8');
+	const raw_content = await promisified.fse.readFile(source_path);
 
 	const processed_content = await apply_loaders(raw_content, source_path, destination_path, config);
 
 	await validate_path(destination_path);
 
-	return promisified.fse.writeFile(destination_path, processed_content, 'utf8');
+	return promisified.fse.writeFile(destination_path, processed_content);
 }
 
 /**
