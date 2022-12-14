@@ -95,7 +95,7 @@ const options: CliOptions = program.opts();
 /**
  * Returns the complete, resolved configuration object
  */
-export async function get_config(): Promise<Config> {
+export async function get_config() {
 	const cwd = definitely_posix(process.cwd());
 
 	const ts_config = get_ts_config(cwd, options.project);
@@ -115,7 +115,7 @@ export async function get_config(): Promise<Config> {
 		rules: [],
 	};
 
-	const config = {
+	const config: Config = {
 		...default_config,
 		...project_config,
 	};
