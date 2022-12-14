@@ -130,10 +130,7 @@ export async function get_config() {
  * @param currentDir
  * @param project
  */
-export function get_ts_config(
-	currentDir: string,
-	project: string
-): ParsedCommandLine {
+export function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
 	let configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
 	if (!configFile) {
@@ -233,15 +230,15 @@ export function get_ignore_list(config: Config, projects: TsProject | TsProject[
 		const safe_projects = !Array.isArray(projects) ? [projects] : projects;
 
 		const ts_exclude_list = safe_projects.map((project) => {
-				return project.exclude.map((rule) => {
-					// Handle if the exclude pattern contains the name of the root directory
+		  return project.exclude.map((rule) => {
+			// Handle if the exclude pattern contains the name of the root directory
 				const rootDirName = project.root_dir.replace(project.base_path + '/', '') + '/';
-					if (rule.startsWith(rootDirName)) {
+				if (rule.startsWith(rootDirName)) {
 					return rule.replace(rootDirName, '');
-					}
+				}
 
-					return rule;
-				});
+				return rule;
+			});
 		}).flat();
 
 		ignore_list.push(...ts_exclude_list);
@@ -416,18 +413,18 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
 			return [...rule.use].reverse().reduce((content, loader) => {
 				let loaderFn;
 
-				switch (typeof loader.loader) {
+				  switch (typeof loader.loader) {
 						case 'function':
-						loaderFn = loader.loader;
-						break;
+						  loaderFn = loader.loader;
+						  break;
 						case 'string':
-						loaderFn = require(path.resolve(loader.loader));
-						break;
-					default:
+						  loaderFn = require(path.resolve(loader.loader));
+						  break;
+					  default:
 							throw new Error('Invalid loader type');
-				}
+				  }
 
-				return loaderFn(content, loaderMeta);
+				  return loaderFn(content, loaderMeta);
 				},
 				processed_content,
 			);
