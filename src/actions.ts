@@ -34,7 +34,7 @@ export async function collect_projects_files(projects: TsProject[], config: Conf
 		return {
 			...project,
 			source_files,
-		}
+		};
 	}));
 }
 
@@ -130,7 +130,7 @@ export async function watch_files(projects: TsProject[], config: Config): Promis
 			console.clear();
 		}
 		console.log(msg);
-		console.log(color_log(globed_projects.map(({ project_name }) => `${project_name}`).join('\n'), console_colors.FgBrightBlack))
+		console.log(color_log(globed_projects.map(({ project_name }) => `${project_name}`).join('\n'), console_colors.FgBrightBlack));
 	}
 
 	let isReady = false;

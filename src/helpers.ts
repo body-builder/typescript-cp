@@ -66,7 +66,7 @@ export enum console_colors {
 	BgBrightWhite = '\x1b[107m',
 }
 
-const version = require('../package.json').version
+const version = require('../package.json').version;
 
 const defaultProject = ((): string => {
 	// process.argv = ['node_path', 'script_path', ...args]
@@ -76,7 +76,7 @@ const defaultProject = ((): string => {
 		return lastArg;
 	}
 
-	return 'tsconfig.json'
+	return 'tsconfig.json';
 })();
 
 const program = new Command();
@@ -84,8 +84,8 @@ const program = new Command();
 program
 	.option('-w, --watch', 'Watch input files.')
 	.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
-	.option('-p , --project <path>', "FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a 'tsconfig.json'", defaultProject)
-	.version(version, '-v, --version')
+	.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
+	.version(version, '-v, --version');
 
 program.parse(process.argv);
 
@@ -133,7 +133,7 @@ export async function get_config(): Promise<Config> {
 export function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
 	const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
-	if (!configFile) throw Error('tsconfig.json not found')
+	if (!configFile) throw Error('tsconfig.json not found');
 
 	const { config } = ts.readConfigFile(configFile, ts.sys.readFile);
 
@@ -155,11 +155,11 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 	const { rootDir, outDir } = ts_config.options;
 
 	if (!rootDir) {
-		throw new Error(`No 'rootDir' configured in reference '${referenceName}'`)
+		throw new Error(`No 'rootDir' configured in reference '${referenceName}'`);
 	}
 
 	if (!outDir) {
-		throw new Error(`No 'outDir' configured in reference '${referenceName}'`)
+		throw new Error(`No 'outDir' configured in reference '${referenceName}'`);
 	}
 
 	return {
@@ -195,11 +195,11 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 
 	return ts_config.projectReferences.map((reference) => {
 		if (!reference.path) {
-			throw new Error('Could not find project reference path')
+			throw new Error('Could not find project reference path');
 		}
 
 		if (!reference.originalPath) {
-			throw new Error('Could not find project reference originalPath')
+			throw new Error('Could not find project reference originalPath');
 		}
 
 		const cwd = path.dirname(reference.path);
@@ -233,7 +233,7 @@ export function get_ignore_list(config: Config, projects: TsProject | TsProject[
 			});
 		}).flat();
 
-		ignore_list.push(...ts_exclude_list)
+		ignore_list.push(...ts_exclude_list);
 	}
 
 	ignore_list.push(...config.ignored_files);
@@ -369,7 +369,7 @@ function apply_rule_condition(source_path: string, rule: Rule, config: Config): 
 	}
 
 	if (isMatching === true) {
-		return true
+		return true;
 	}
 
 	return false;
@@ -413,7 +413,7 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
 							loaderFn = require(path.resolve(loader.loader));
 							break;
 						default:
-							throw new Error('Invalid loader type')
+							throw new Error('Invalid loader type');
 					}
 
 					return loaderFn(content, loaderMeta);
