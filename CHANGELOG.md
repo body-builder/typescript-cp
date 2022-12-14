@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/body-builder/typescript-cp/compare/v0.1.6...v0.1.7) (2022-12-14)
+
+
+### Bug Fixes
+
+* Enforce LF line endings in the package dist files ([b1fb59d](https://github.com/body-builder/typescript-cp/commit/b1fb59d242b42f2c16ecd2a31cb59279ada61e09)), closes [#7](https://github.com/body-builder/typescript-cp/issues/7)
+
 ### [0.1.6](https://github.com/body-builder/typescript-cp/compare/v0.1.5...v0.1.6) (2022-07-20)
 
 
