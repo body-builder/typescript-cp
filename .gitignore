@@ -6,3 +6,6 @@
 
 # Compiled files
 /dist
+
+# VS Code
+/.vscode
