@@ -20,6 +20,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
 
+    "newLine": "lf",
     "declaration": true,
     "baseUrl": "src",
     "rootDir": "src",

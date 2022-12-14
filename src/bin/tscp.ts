@@ -21,7 +21,7 @@ async function command() {
 				if (projects) {
 					console.log('Starting the non-typescript file watcher...');
 				} else {
-					console.log('No non-typescript files found to watch')
+					console.log('No non-typescript files found to watch');
 				}
 			})
 			.catch((e) => {
@@ -34,9 +34,9 @@ async function command() {
 		.then(() => {
 			if (projects) {
 				console.log('Non-typescript files copied');
-				console.log(projects.map(({ project_name }) => `${color_log(project_name, console_colors.FgGreen)}`).join('\n'))
+				console.log(projects.map(({ project_name }) => `${color_log(project_name, console_colors.FgGreen)}`).join('\n'));
 			} else {
-				console.log('No non-typescript files found to copy')
+				console.log('No non-typescript files found to copy');
 			}
 		})
 		.catch((e) => {
