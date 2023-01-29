@@ -68,7 +68,7 @@ export enum console_colors {
 
 const version = require('../package.json').version;
 
-const defaultProject = ((): string => {
+export const getDefaultProject = (): string => {
 	// process.argv = ['node_path', 'script_path', ...args]
 	const lastArg = process.argv.slice(2).slice(-1)[0];
 
@@ -77,7 +77,9 @@ const defaultProject = ((): string => {
 	}
 
 	return 'tsconfig.json';
-})();
+};
+
+const defaultProject = getDefaultProject();
 
 const program = new Command();
 

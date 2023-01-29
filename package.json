@@ -24,6 +24,8 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version --sign",
     "prepack": "npm run clean && npm run build"
@@ -47,7 +49,9 @@
   "devDependencies": {
     "@types/node": "^16.7.1",
     "@types/rimraf": "^3.0.0",
+    "@vitest/coverage-c8": "^0.28.3",
     "standard-version": "^9.3.1",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "vitest": "^0.28.3"
   }
 }
