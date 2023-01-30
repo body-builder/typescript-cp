@@ -7,12 +7,42 @@ export type CliOptions = {
 }
 
 export type Config = {
+	/**
+	 * The path the process was started from
+	 */
 	cwd: string;
+
+	/**
+	 * Config coming from `process.arg`
+	 */
 	cli_options: CliOptions,
+
+	/**
+	 * The complete tsconfig object
+	 */
 	ts_config: ParsedCommandLine,
+
+	/**
+	 * Ignore files that are listed in the tsconfig `exclude` array
+	 * Defaults to `true`
+	 */
 	use_ts_exclude: boolean;
+
+	/**
+	 * Files compiled by TS (these also get ignored)
+	 * Defaults to `['** /*.ts', '** /*.tsx', '** /*.js', '** /*.jsx']`
+	 */
 	compiled_files: string[];
+
+	/**
+	 * Files not to copy
+	 * Defaults to `['node_modules']`
+	 */
 	ignored_files: string[];
+
+	/**
+	 * Set of loader rules to preprocess the file content before copying
+	 */
 	rules: Rule[];
 }
 
