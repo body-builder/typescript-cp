@@ -3,9 +3,12 @@ import * as path from 'path';
 import * as process from 'process';
 import { describe, expect, it } from 'vitest';
 import {
+	build_project_path,
 	definitely_posix,
 	get_config,
 	get_ts_config,
+	get_ts_project_paths,
+	get_ts_projects_paths,
 	getDefaultProject,
 } from '../src/helpers';
 
@@ -187,6 +190,168 @@ describe('helpers', () => {
 			expect(() => get_ts_config(process.cwd(), 'not-existing-config.json')).toThrowError(
 				'tsconfig.json not found',
 			);
+		});
+	});
+
+	describe('build_project_path', () => {
+		it('should handle a TS project without project references', () => {
+			const _cwd = path.resolve('./test/typescript-config/base');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
+
+			expect(build_project_path(_cwd, _tsconfig_path, _tsconfig)).toEqual({
+				base_path: _cwd,
+				exclude: [
+					'node_modules',
+					'dist',
+				],
+				out_dir: definitely_posix_path(_cwd, 'dist'),
+				project_name: 'typescript-cp\\test\\typescript-config\\base',
+				root_dir: definitely_posix_path(_cwd, 'src'),
+				ts_config_path: _tsconfig_path,
+			});
+		});
+
+		it('should handle a TS project with project references', () => {
+			const _cwd = path.resolve('./test/typescript-config/project-references/core');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
+
+			expect(build_project_path(_cwd, _tsconfig_path, _tsconfig)).toEqual({
+				base_path: _cwd,
+				exclude: [],
+				out_dir: definitely_posix_path(_cwd, '../lib/core'),
+				project_name: 'typescript-cp\\test\\typescript-config\\project-references\\core',
+				root_dir: definitely_posix_path(_cwd, ''),
+				ts_config_path: _tsconfig_path,
+			});
+		});
+
+		it('should throw error if `rootDir` is not set in the TS config file', () => {
+			const _cwd = path.resolve('./test/typescript-config/no-rootDir');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
+
+			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
+				'No \'rootDir\' configured in reference \'test\\typescript-config\\no-rootDir\'',
+			);
+		});
+
+		it('should throw error if `outDir` is not set in the TS config file', () => {
+			const _cwd = path.resolve('./test/typescript-config/no-outDir');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
+
+			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
+				'No \'outDir\' configured in reference \'test\\typescript-config\\no-outDir\'',
+			);
+		});
+	});
+
+	describe('get_ts_project_paths', () => {
+		it('should handle a TS project without project references', async () => {
+			const _cwd = path.resolve('./test/typescript-config/base');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const config = await get_config(_cwd);
+
+			expect(get_ts_project_paths(config)).toEqual({
+				base_path: definitely_posix_path(_cwd),
+				exclude: [
+					'node_modules',
+					'dist',
+				],
+				out_dir: definitely_posix_path(_cwd, 'dist'),
+				project_name: 'typescript-cp\\test\\typescript-config\\base',
+				root_dir: definitely_posix_path(_cwd, 'src'),
+				ts_config_path: 'tsconfig.json',
+			});
+		});
+
+		it('should handle a TS project with project references', async () => {
+			const _cwd = path.resolve('./test/typescript-config/project-references');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const config = await get_config(_cwd);
+
+			expect(get_ts_project_paths(config)).toEqual({
+				base_path: definitely_posix_path(_cwd),
+				exclude: [],
+				out_dir: definitely_posix_path(_cwd, '../lib'),
+				project_name: 'typescript-cp\\test\\typescript-config\\project-references',
+				root_dir: definitely_posix_path(_cwd, ''),
+				ts_config_path: 'tsconfig.json',
+			});
+		});
+	});
+
+	describe('get_ts_projects_paths', () => {
+		it('should throw error for a TS project without project references', async () => {
+			const _cwd = path.resolve('./test/typescript-config/base');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const config = await get_config(_cwd);
+
+			expect(() => get_ts_projects_paths(config)).toThrowError('No project references configured');
+		});
+
+		it('should handle a TS project with project references', async () => {
+			const _cwd = path.resolve('./test/typescript-config/project-references');
+			expect(fs.existsSync(_cwd)).toBe(true);
+
+			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
+			expect(fs.existsSync(_tsconfig_path)).toBe(true);
+
+			const config = await get_config(_cwd);
+
+			expect(get_ts_projects_paths(config)).toEqual([
+				{
+					base_path: definitely_posix_path(_cwd, 'core'),
+					exclude: [],
+					out_dir: definitely_posix_path(_cwd, 'lib/core'),
+					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\core',
+					root_dir: definitely_posix_path(_cwd, 'core'),
+					ts_config_path: './core/tsconfig.json',
+				},
+				{
+					base_path: definitely_posix_path(_cwd, 'animals'),
+					exclude: [],
+					out_dir: definitely_posix_path(_cwd, 'lib/animals'),
+					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\animals',
+					root_dir: definitely_posix_path(_cwd, 'animals'),
+					ts_config_path: './animals/tsconfig.json',
+				},
+				{
+					base_path: definitely_posix_path(_cwd, 'zoo'),
+					exclude: [],
+					out_dir: definitely_posix_path(_cwd, 'lib/zoo'),
+					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\zoo',
+					root_dir: definitely_posix_path(_cwd, 'zoo'),
+					ts_config_path: './zoo/tsconfig.json',
+				},
+			]);
 		});
 	});
 });

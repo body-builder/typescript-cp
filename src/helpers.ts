@@ -151,7 +151,7 @@ export function get_ts_config(currentDir: string, project: string): ParsedComman
  * @param project_path
  * @param ts_config
  */
-function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
+export function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
 	const currentDirName = path.basename(path.resolve());
 	const referenceName = path.relative(process.cwd(), cwd);
 	const projectName = path.join(currentDirName, referenceName);
