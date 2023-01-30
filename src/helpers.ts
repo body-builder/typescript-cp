@@ -216,7 +216,8 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 }
 
 /**
- * Combines the exclude pattern in the tsconfig file and the TSCP `config.ignored_files`
+ * Combines the exclude-pattern in the tsconfig file and the TSCP `config.ignored_files`
+ * TODO Rather return absolute paths?
  * @param config
  * @param projects
  */
@@ -229,6 +230,7 @@ export function get_ignore_list(config: Config, projects: TsProject | TsProject[
 		const ts_exclude_list = safe_projects.map((project) => {
 			return project.exclude.map((rule) => {
 				// Handle if the exclude pattern contains the name of the root directory
+				// TODO this should be done one level higher
 				const rootDirName = project.root_dir.replace(project.base_path + '/', '') + '/';
 				if (rule.startsWith(rootDirName)) {
 					return rule.replace(rootDirName, '');
@@ -313,6 +315,8 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 	const is_directory = stats.isDirectory();
 
 	if (is_directory) {
+		// TODO Currently we only create the empty directory. This doesn't seem to be very useful,
+		//  we should call `copy_file_or_directory` recursively on all files, and apply the loaders.
 		return promisified.fs.mkdir(destination_path);
 	}
 

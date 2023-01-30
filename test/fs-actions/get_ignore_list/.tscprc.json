@@ -1,0 +1,7 @@
+{
+  "ignored_files": [
+    "tscp-rule/ignored-file-ts.txt",
+    "tscp-rule/folder",
+    "src/tscp-rule/with-rootDir"
+  ]
+}
