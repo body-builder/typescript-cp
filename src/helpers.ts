@@ -1,3 +1,4 @@
+import * as process from 'process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Command } from 'commander';
@@ -79,28 +80,30 @@ export const getDefaultProject = (): string => {
 	return 'tsconfig.json';
 };
 
-const defaultProject = getDefaultProject();
+export const getCliOptions = (): CliOptions => {
+	const defaultProject = getDefaultProject();
 
-const program = new Command();
+	const program = new Command();
 
-program
-	.option('-w, --watch', 'Watch input files.')
-	.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
-	.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
-	.version(version, '-v, --version');
+	program
+		.option('-w, --watch', 'Watch input files.')
+		.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
+		.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
+		.version(version, '-v, --version');
 
-program.parse(process.argv);
+	program.parse(process.argv);
 
-// @ts-ignore
-const options: CliOptions = program.opts();
+	return program.opts();
+};
 
 /**
  * Returns the complete, resolved configuration object
  */
-export async function get_config() {
-	const cwd = definitely_posix(process.cwd());
+export async function get_config(_cwd = process.cwd()) {
+	const cwd = definitely_posix(_cwd);
+	const cli_options = getCliOptions();
 
-	const ts_config = get_ts_config(cwd, options.project);
+	const ts_config = get_ts_config(cwd, cli_options.project);
 
 	const explorer = cosmiconfig('tscp');
 	const result = await explorer.search(cwd);
@@ -109,7 +112,7 @@ export async function get_config() {
 
 	const default_config: Config = {
 		cwd,
-		cli_options: options,
+		cli_options,
 		ts_config,
 		use_ts_exclude: true,
 		compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

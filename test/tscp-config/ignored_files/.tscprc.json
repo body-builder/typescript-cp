@@ -1,0 +1,7 @@
+{
+  "ignored_files": [
+    "ignored-file",
+    "C:\\ignored\\path.js",
+    "/path/to/ignored/file.js"
+  ]
+}

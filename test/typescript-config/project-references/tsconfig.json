@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "../lib",
+    "rootDir": "."
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./core/tsconfig.json"
+    },
+    {
+      "path": "./animals/tsconfig.json"
+    },
+    {
+      "path": "./zoo/tsconfig.json"
+    }
+  ]
+}
