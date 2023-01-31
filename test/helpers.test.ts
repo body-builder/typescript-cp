@@ -547,7 +547,7 @@ describe('helpers', () => {
 			const targetFilePath = path.resolve(_target_cwd, 'copied-file.css');
 			expect(fs.existsSync(targetFilePath)).toBe(false);
 
-			const config = await get_config(_source_cwd);
+			const config = await get_config();
 
 			const targetFolderContent = await readFolderContent(_target_cwd);
 
@@ -576,7 +576,7 @@ describe('helpers', () => {
 			const targetChildFilePath = path.resolve(targetFolderPath, 'file.js');
 			expect(fs.existsSync(targetChildFilePath)).toBe(false);
 
-			const config = await get_config(_source_cwd);
+			const config = await get_config();
 
 			const targetFolderContent = await readFolderContent(_target_cwd);
 
@@ -606,7 +606,7 @@ describe('helpers', () => {
 			const targetFileContent = await fs.promises.readFile(targetFilePath, 'utf-8');
 			expect(targetFileContent).toBe('/* existing-file.css */\n');
 
-			const config = await get_config(_source_cwd);
+			const config = await get_config();
 
 			const targetFolderContent = await readFolderContent(_target_cwd);
 
@@ -633,7 +633,20 @@ describe('helpers', () => {
 			const sourceFileContent = await fs.promises.readFile(sourceFilePath, 'utf-8');
 			expect(sourceFileContent).toBe('// basic.sass\n');
 
-			const config = await get_config(_target_cwd);
+			const config = await get_config();
+			config.rules = [
+				{
+					test: /\.s(a|ac)ss$/,
+					use: [
+						{
+							loader: (content) => content.replace('loader 2', 'loader 1 + 2'),
+						},
+						{
+							loader: (content) => content + '/* loader 2 */\n',
+						},
+					],
+				},
+			];
 
 			const targetFolderContent = await readFolderContent(_target_cwd);
 
