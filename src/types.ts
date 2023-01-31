@@ -51,7 +51,8 @@ export type Rule = {
 	include?: RuleCondition;
 	exclude?: RuleCondition;
 	use: Loader[];
-	options: { [key: string]: any }
+	// TODO This hasn't been implemented yet.
+	options?: { [key: string]: any }
 }
 
 /**
