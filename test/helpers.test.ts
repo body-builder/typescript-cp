@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vitest } from 'vitest';
 import rimraf from 'rimraf';
 // @ts-ignore
 import { getFileList, readFolderContent, restoreFolderContent } from './utils/fs';
 import {
+	apply_rule_condition,
 	build_project_path,
 	copy_file_or_directory,
 	definitely_posix,
@@ -17,6 +18,7 @@ import {
 	get_ts_projects_paths,
 	getDefaultProject,
 	remove_file_or_directory,
+	test_rule_condition,
 	validate_path,
 } from '../src/helpers';
 
@@ -655,6 +657,341 @@ describe('helpers', () => {
 			expect(await fs.promises.readFile(targetFilePath, 'utf-8')).toBe('// basic.sass\n/* loader 1 + 2 */\n');
 
 			await restoreFolderContent(_target_cwd, targetFolderContent);
+		});
+	});
+
+	describe('test_rule_condition', () => {
+		describe('string rules', async () => {
+			const config = await get_config();
+
+			const rule_condition = path.resolve('./test.sass');
+
+			it('should match the same filename in the same directory, but only with absolute path', () => {
+				expect(test_rule_condition(path.resolve('./test.sass'), rule_condition, config)).toBe(true);
+				expect(test_rule_condition('./test.sass', rule_condition, config)).toBe(false);
+
+				// this is the same
+				expect(test_rule_condition(path.resolve('test.sass'), rule_condition, config)).toBe(true);
+				expect(test_rule_condition('test.sass', rule_condition, config)).toBe(false);
+			});
+
+			it('should not match other filename in the same directory', () => {
+				expect(test_rule_condition(path.resolve('./test.scss'), rule_condition, config)).toBe(false);
+				expect(test_rule_condition('./test.css', rule_condition, config)).toBe(false);
+			});
+
+			it('should not match the same filename in other directory', () => {
+				expect(test_rule_condition(path.resolve('../../test.sass'), rule_condition, config)).toBe(false);
+				expect(test_rule_condition('../../test.sass', rule_condition, config)).toBe(false);
+			});
+		});
+
+		describe('regexp rules', async () => {
+			const config = await get_config();
+
+			const sass_regexp1 = /\.s(a|c)ss$/;
+
+			it('should match .sass files', () => {
+				expect(test_rule_condition(path.resolve('./test.sass'), sass_regexp1, config)).toBe(true);
+				expect(test_rule_condition('./test.sass', sass_regexp1, config)).toBe(true);
+			});
+
+			it('should match .scss files', () => {
+				expect(test_rule_condition(path.resolve('../../test.scss'), sass_regexp1, config)).toBe(true);
+				expect(test_rule_condition('../../test.scss', sass_regexp1, config)).toBe(true);
+			});
+
+			it('should not match .css files', () => {
+				expect(test_rule_condition(path.resolve('./test.css'), sass_regexp1, config)).toBe(false);
+				expect(test_rule_condition('./test.css', sass_regexp1, config)).toBe(false);
+			});
+		});
+
+		describe('should handle callback rules', async () => {
+			const config = await get_config();
+
+			it('should call the callback function with the file\'s source path', () => {
+				const cb = vitest.fn();
+
+				test_rule_condition('filename.js', cb, config);
+
+				expect(cb).toBeCalledTimes(1);
+				expect(cb).toBeCalledWith('filename.js');
+			});
+
+			it('should return the value of the callback function', () => {
+				expect(test_rule_condition('./example.js', () => true, config)).toBe(true);
+				expect(test_rule_condition('./example.js', () => false, config)).toBe(false);
+			});
+
+			// TODO This shouldn't be like this. We should convert the return value to boolean.
+			//  Even though `apply_rule_condition` will only accept true, and anything else will treated as false.
+			it('should allow any truthy/falsy return values for the callback\'s return value', () => {
+				// @ts-expect-error
+				expect(test_rule_condition('./example.js', () => null, config)).toBe(null);
+				// @ts-expect-error
+				expect(test_rule_condition('./example.js', () => undefined, config)).toBe(undefined);
+				// @ts-expect-error
+				expect(test_rule_condition('./example.js', () => '', config)).toBe('');
+			});
+		});
+
+		describe('array of rules', async () => {
+			const config = await get_config();
+
+			it('should handle array of rules', () => {
+				const file_path = path.resolve('./test.sass');
+
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(true);
+			});
+
+			it('should return true only when the source_path matches all of the rules', () => {
+				const file_path = path.resolve('./test.sass');
+
+				// OK
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.sass$/], config)).toBe(true);
+
+				// At least one rule doesn't match
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.scss$/], config)).toBe(false);
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.sass$/, path.resolve('sub-folder/test.sass')], config)).toBe(false);
+
+				// None of the rules match
+				expect(test_rule_condition(file_path, [/\.js$/, /\.scss$/], config)).toBe(false);
+
+				// relative paths cannot be used as a rule
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, 'test.sass'], config)).toBe(false);
+			});
+
+			it('should work normally for every rule condition type', () => {
+				const file_path = path.resolve('./test.sass');
+
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(true);
+				expect(test_rule_condition(file_path, [file_path], config)).toBe(true);
+				expect(test_rule_condition(file_path, [() => true], config)).toBe(true);
+
+				expect(test_rule_condition(file_path, [/\.css$/], config)).toBe(false);
+				expect(test_rule_condition(file_path, ['test.sass'], config)).toBe(false);
+				expect(test_rule_condition(file_path, [() => false], config)).toBe(false);
+			});
+
+			it('should call one callback only once', () => {
+				const cb = vitest.fn();
+				const file_path = path.resolve('./test.sass');
+
+				test_rule_condition(file_path, [file_path, cb, /\.css$/], config);
+
+				expect(cb).toBeCalledTimes(1);
+				expect(cb).toBeCalledWith(file_path);
+			});
+
+			it('shouldn\'t call the callback if there is a previous, non-matching rule in the chain', () => {
+				const cb = vitest.fn();
+				const file_path = path.resolve('./test.sass');
+
+				test_rule_condition(file_path, ['test.sass', cb, /\.css$/], config);
+
+				expect(cb).toBeCalledTimes(0);
+			});
+		});
+	});
+
+	describe('apply_rule_condition', async () => {
+		const config = await get_config();
+
+		it('should handle `rule.test`', () => {
+			expect(apply_rule_condition(path.resolve('file.sass'), {
+				test: /\.sass$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.sass'), {
+				test: () => true,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.js'), {
+				test: /\.css$/,
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		it('should handle `rule.include', () => {
+			expect(apply_rule_condition(path.resolve('file.sass'), {
+				include: /\.sass$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.sass'), {
+				include: /\.scss$/,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition(path.resolve('file.js'), {
+				include: () => false,
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		it('should handle `rule.exclude`', () => {
+			// We should also use at least one matching condition in case of `exclude`, to get a truthy output.
+			// We use `test`, because that is weaker than `exclude`. `include` would supersede the exclusion rule.
+			expect(apply_rule_condition(path.resolve('file.sass'), {
+				test: () => true,
+				exclude: /\.scss$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				test: () => true,
+				exclude: /\.scss$/,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition(path.resolve('file.js'), {
+				test: () => true,
+				exclude: () => true,
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		it('should keep the condition strength order - 1: include, 2: exclude, 3: test', () => {
+			// INCLUDE
+			// If a file is explicitly included, it _will_ be included - even if it is explicitly excluded
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				include: /\.scss$/,
+				exclude: /\.scss$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				include: /\.scss$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				include: /\.scss$/,
+				test: /\.js$/,
+				use: [],
+			}, config)).toBe(true);
+
+			// EXCLUDE
+			// If a file is explicitly excluded, it _will_ be excluded - _unless it is explicitly included_
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				exclude: /\.scss$/,
+				include: /\.sass$/,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				exclude: /\.scss$/,
+				test: /\.js$/,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				exclude: /\.scss$/,
+				include: /\.scss$/,
+				use: [],
+			}, config)).toBe(true);
+
+			// TEST
+			// If the file is matched, it will be included - _unless it is explicitly included_
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				test: /\.scss$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				test: /\.scss$/,
+				exclude: /\.sass$/,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition(path.resolve('file.scss'), {
+				test: /\.scss$/,
+				exclude: /\.scss$/,
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		it('should accept only `true` as permissive callback value', () => {
+			expect(apply_rule_condition('file.js', {
+				test: () => true,
+				use: [],
+			}, config)).toBe(true);
+
+			expect(apply_rule_condition('file.js', {
+				// @ts-expect-error
+				test: () => 1,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition('file.js', {
+				// @ts-expect-error
+				test: () => undefined,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition('file.js', {
+				// @ts-expect-error
+				test: () => 'string',
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		it('shouldn\'t apply loader if none of the conditions are met', () => {
+			expect(apply_rule_condition('file.js', {
+				test: /\.ts$/,
+				exclude: /\.tsx$/,
+				include: /\.jsx$/,
+				use: [],
+			}, config)).toBe(false);
+
+			expect(apply_rule_condition(path.resolve('file.txt'), {
+				test: /\.ts$/,
+				exclude: () => false,
+				include: path.resolve('sub-folder/file.txt'),
+				use: [],
+			}, config)).toBe(false);
+		});
+
+		// TODO Obviously this shouldn't be like this. Don't call `rule.test`, if the file is e.g. excluded.
+		it('should test the file against each condition before making a decision', () => {
+			const cb_include = vitest.fn();
+			const cb_exclude = vitest.fn();
+			const cb_test = vitest.fn();
+
+			// Test 1
+			apply_rule_condition(path.resolve('file.txt'), {
+				include: cb_include,
+				exclude: () => {
+					cb_exclude();
+					return true;
+				},
+				test: cb_test,
+				use: [],
+			}, config);
+
+			expect(cb_include).toBeCalledTimes(1);
+			expect(cb_exclude).toBeCalledTimes(1);
+			// cb_test shouldn't be called, because exclude already returned `true`
+			expect(cb_test).toBeCalledTimes(1);
+
+			// Test 2
+			apply_rule_condition(path.resolve('file.txt'), {
+				include: () => {
+					cb_include();
+					return true;
+				},
+				exclude: cb_exclude,
+				test: cb_test,
+				use: [],
+			}, config);
+
+			expect(cb_include).toBeCalledTimes(2);
+			// cb_exclude and cb_test shouldn't be called, because exclude already returned `true`
+			expect(cb_exclude).toBeCalledTimes(2);
+			expect(cb_test).toBeCalledTimes(2);
 		});
 	});
 });

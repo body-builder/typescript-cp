@@ -337,13 +337,15 @@ export async function copy_file_or_directory(source_path: string, destination_pa
  * @param rule_condition
  * @param config
  */
-function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
+export function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
 	if (Array.isArray(rule_condition)) {
+		// TODO Only flat arrays should be allowed, don't allow rule-condition: [rule-1, [rule-2-1, rule-2-2], rule-3]
 		return rule_condition.every((sub_condition) => test_rule_condition(source_path, sub_condition, config));
 	}
 
 	// An exact absolute path string
 	if (typeof rule_condition === 'string') {
+		// TODO Throw error on startup if rule_condition is not absolute path?
 		return rule_condition === source_path;
 	}
 
@@ -352,6 +354,8 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
 	}
 
 	if (typeof rule_condition === 'function') {
+		// TODO Force boolean?
+		//  return rule_condition(source_path) === true;
 		return rule_condition(source_path);
 	}
 
@@ -364,11 +368,12 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
  * @param rule
  * @param config
  */
-function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
+export function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
 	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
 	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
 	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
 
+	// TODO Do as less computation as possible. Don't call `rule.test`, if the file is e.g. excluded.
 	if (isIncluded === true) {
 		return true;
 	}
