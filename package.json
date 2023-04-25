@@ -37,7 +37,6 @@
     "fs-extra": "^11.1.1",
     "globby": "^13.1.4",
     "lodash": "^4.17.21",
-    "pify": "^6.1.0",
     "rimraf": "^5.0.0",
     "tar": "^6.1.13"
   },
@@ -45,8 +44,8 @@
     "typescript": "^5.0.4"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
     "@types/node": "^18.16.0",
-    "@types/rimraf": "^3.0.2",
     "standard-version": "^9.5.0",
     "typescript": "^5.0.4"
   }

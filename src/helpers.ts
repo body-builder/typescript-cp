@@ -3,20 +3,9 @@ import * as fs from 'fs';
 import { Command } from 'commander';
 import ts, { ParsedCommandLine } from 'typescript';
 import fse from 'fs-extra';
-import pify from 'pify';
-import rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 import { cosmiconfig } from 'cosmiconfig';
 import { CliOptions, Config, LoaderMeta, Rule, RuleCondition, TsProject } from './types';
-
-export const promisified = {
-	fs: {
-		...pify(fs),
-		exists: pify(fs.exists, { errorFirst: false }),
-		mkdir: pify(fs.mkdir, { errorFirst: false }),
-	},
-	fse: pify(fse),
-	rimraf: pify(rimraf),
-};
 
 // https://stackoverflow.com/a/41407246/3111787
 // https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
@@ -257,8 +246,8 @@ export function color_log(msg: string, color: typeof console_colors[keyof typeof
 export async function validate_path(p: string): Promise<void> {
 	const dirname = path.dirname(p);
 
-	if (!await promisified.fs.exists(dirname)) {
-		await promisified.fs.mkdir(dirname, { recursive: true });
+	if (!await get_file_stats(dirname)) {
+		await fs.promises.mkdir(dirname, { recursive: true });
 	}
 }
 
@@ -268,7 +257,7 @@ export async function validate_path(p: string): Promise<void> {
  */
 export async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
 	try {
-		return await promisified.fse.lstat(file_path);
+		return await fse.lstat(file_path);
 	} catch (e) {
 		return Promise.resolve();
 	}
@@ -278,16 +267,16 @@ export async function get_file_stats(file_path: string): Promise<fs.Stats | void
  * Deletes the `file_path` file. Doesn't throw error if the file doesn't exist.
  * @param file_path
  */
-export async function remove_file_or_directory(file_path: string): Promise<void> {
+export async function remove_file_or_directory(file_path: string): Promise<boolean> {
 	const stats = await get_file_stats(file_path);
 
 	if (!stats) {
-		return Promise.resolve();
+		return Promise.resolve(false);
 	}
 
 	// console.log('DELETE', file_path);
 
-	return promisified.rimraf(file_path);
+	return rimraf(file_path);
 }
 
 const files_without_loaders: string[] = [];
@@ -298,7 +287,7 @@ const files_without_loaders: string[] = [];
  * @param destination_path
  * @param config
  */
-export async function copy_file_or_directory(source_path: string, destination_path: string, config: Config) {
+export async function copy_file_or_directory(source_path: string, destination_path: string, config: Config): Promise<void> {
 	const stats = await get_file_stats(source_path);
 
 	if (!stats) {
@@ -308,18 +297,18 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 	const is_directory = stats.isDirectory();
 
 	if (is_directory) {
-		return promisified.fs.mkdir(destination_path);
+		return fs.promises.mkdir(destination_path);
 	}
 
 	// console.log('COPY', source_path, 'to', destination_path);
 
-	const raw_content = await promisified.fse.readFile(source_path);
+	const raw_content = await fse.readFile(source_path);
 
-	const processed_content = await apply_loaders(raw_content, source_path, destination_path, config);
+	const processed_content = apply_loaders(raw_content, source_path, destination_path, config);
 
 	await validate_path(destination_path);
 
-	return promisified.fse.writeFile(destination_path, processed_content);
+	return fse.writeFile(destination_path, processed_content);
 }
 
 /**
@@ -376,13 +365,13 @@ function apply_rule_condition(source_path: string, rule: Rule, config: Config): 
 }
 
 /**
- * Passes the content of the source file to each loader in sequence and returns a Promise with the final content
+ * Passes the content of the source file to each loader in sequence and returns the final content
  * @param raw_content
  * @param source_path
  * @param destination_path
  * @param config
  */
-async function apply_loaders(raw_content: string, source_path: string, destination_path: string, config: Config): Promise<string> {
+function apply_loaders(raw_content: Buffer, source_path: string, destination_path: string, config: Config): Buffer {
 	let processed_content = raw_content;
 
 	const should_process_file = files_without_loaders.indexOf(source_path) === -1;
@@ -401,7 +390,7 @@ async function apply_loaders(raw_content: string, source_path: string, destinati
 			config,
 		};
 
-		processed_content = await used_rules.reduce((content, rule) => {
+		processed_content = used_rules.reduce((content, rule) => {
 			return [...rule.use].reverse().reduce((content, loader) => {
 					let loaderFn;
 
