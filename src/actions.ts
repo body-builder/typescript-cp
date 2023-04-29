@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { globby } from 'globby';
+import globby from 'globby';
 import chokidar from 'chokidar';
 import {
 	color_log,
