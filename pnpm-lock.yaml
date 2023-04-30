@@ -14,8 +14,8 @@ dependencies:
     specifier: ^11.1.1
     version: 11.1.1
   globby:
-    specifier: ^11.0.4
-    version: 11.0.4
+    specifier: ^11.1.0
+    version: 11.1.0
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -725,8 +725,8 @@ packages:
       path-scurry: 1.7.0
     dev: false
 
-  /globby@11.0.4:
-    resolution: {integrity: sha512-9O4MVG9ioZJ08ffbcyVYyLOJLk5JQ688pJ4eMGLpdWLHq/Wr1D9BlriLQyL0E+jbkuePVZXYFj47QM/v093wHg==}
+  /globby@11.1.0:
+    resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
     dependencies:
       array-union: 2.1.0
