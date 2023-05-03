@@ -302,7 +302,7 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 
 	// console.log('COPY', source_path, 'to', destination_path);
 
-	const raw_content = await fse.readFile(source_path, "utf-8");
+	const raw_content = await fse.readFile(source_path);
 
 	const processed_content = await apply_loaders(raw_content, source_path, destination_path, config);
 
@@ -371,7 +371,7 @@ function apply_rule_condition(source_path: string, rule: Rule, config: Config): 
  * @param destination_path
  * @param config
  */
-async function apply_loaders(raw_content: string, source_path: string, destination_path: string, config: Config): Promise<string> {
+async function apply_loaders(raw_content: Buffer, source_path: string, destination_path: string, config: Config): Promise<Buffer> {
 	let processed_content = raw_content;
 
 	const should_process_file = files_without_loaders.indexOf(source_path) === -1;
