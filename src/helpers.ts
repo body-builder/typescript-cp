@@ -365,7 +365,7 @@ function apply_rule_condition(source_path: string, rule: Rule, config: Config): 
 }
 
 /**
- * Passes the content of the source file to each loader in sequence and returns the final content
+ * Passes the content of the source file to each loader in sequence and returns a Promise with the final content
  * @param raw_content
  * @param source_path
  * @param destination_path
