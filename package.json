@@ -1,6 +1,6 @@
 {
   "name": "typescript-cp",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Copy non-typescript files to outDir",
   "homepage": "https://github.com/body-builder/typescript-cp#readme",
   "repository": "https://github.com/body-builder/typescript-cp",

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.8](https://github.com/body-builder/typescript-cp/compare/v0.1.7...v0.1.8) (2023-05-07)
+
+
+### Bug Fixes
+
+* Update package dependencies, fix vulnerabilities, and remove pify ([#12](https://github.com/body-builder/typescript-cp/issues/12)) ([7845d7d](https://github.com/body-builder/typescript-cp/commit/7845d7d3108391ee466109f4e3b70276a382fbbf))
+
 ### [0.1.7](https://github.com/body-builder/typescript-cp/compare/v0.1.6...v0.1.7) (2022-12-14)
 
 
