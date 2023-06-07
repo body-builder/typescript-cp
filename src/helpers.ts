@@ -195,8 +195,12 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 
 		const referenceConfig = get_ts_config(cwd, reference.originalPath!);
 
+		if (referenceConfig.options.noEmit) {
+			return null;
+		}
+
 		return build_project_path(cwd, reference.originalPath!, referenceConfig);
-	});
+	}).filter((project): project is TsProject => project !== null);
 }
 
 /**
