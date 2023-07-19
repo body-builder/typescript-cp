@@ -158,6 +158,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 		root_dir: rootDir,
 		out_dir: outDir,
 		exclude: exclude || [],
+		no_emit: ts_config.options.noEmit ?? false,
 	};
 }
 
@@ -168,7 +169,13 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 export function get_ts_project_paths(options: Config): TsProject {
 	const { cwd, cli_options, ts_config } = options;
 
-	return build_project_path(cwd, cli_options.project, ts_config);
+	const project = build_project_path(cwd, cli_options.project, ts_config);
+
+	if (project.no_emit) {
+		throw new Error('Project must have emitting enabled');
+	}
+	
+	return project;
 }
 
 /**
@@ -182,7 +189,7 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 		throw new Error('No project references configured');
 	}
 
-	return ts_config.projectReferences.map((reference) => {
+	const projects = ts_config.projectReferences.map((reference) => {
 		if (!reference.path) {
 			throw new Error('Could not find project reference path');
 		}
@@ -195,12 +202,15 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 
 		const referenceConfig = get_ts_config(cwd, reference.originalPath!);
 
-		if (referenceConfig.options.noEmit) {
-			return null;
-		}
-
 		return build_project_path(cwd, reference.originalPath!, referenceConfig);
-	}).filter((project): project is TsProject => project !== null);
+	});
+
+	const projects_with_emit = projects.filter((project) => project.no_emit === false);
+	if (!projects_with_emit) {
+		throw new Error('At least one project must have emitting enabled');
+	}
+
+	return projects_with_emit;
 }
 
 /**

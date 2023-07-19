@@ -62,6 +62,7 @@ export type TsProject = {
 	root_dir: string;
 	out_dir: string;
 	exclude: string[];
+	no_emit: boolean;
 }
 
 export type TsProjectWithFiles = TsProject & {
