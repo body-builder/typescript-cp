@@ -174,7 +174,7 @@ export function get_ts_project_paths(options: Config): TsProject {
 	if (project.no_emit) {
 		throw new Error('Project must have emitting enabled');
 	}
-	
+
 	return project;
 }
 
@@ -206,7 +206,7 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 	});
 
 	const projects_with_emit = projects.filter((project) => project.no_emit === false);
-	if (!projects_with_emit) {
+	if (projects_with_emit.length === 0) {
 		throw new Error('At least one project must have emitting enabled');
 	}
 
