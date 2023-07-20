@@ -1,6 +1,6 @@
 {
   "name": "typescript-cp",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Copy non-typescript files to outDir",
   "homepage": "https://github.com/body-builder/typescript-cp#readme",
   "repository": "https://github.com/body-builder/typescript-cp",
@@ -25,7 +25,7 @@
     "start": "tsc -w",
     "build": "tsc",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
-    "release": "standard-version --sign",
+    "release": "standard-version",
     "prepack": "npm run clean && npm run build"
   },
   "author": "Benedek Káldi",
