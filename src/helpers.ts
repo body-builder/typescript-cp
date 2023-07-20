@@ -120,9 +120,17 @@ export async function get_config() {
  * @param project
  */
 export function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
-	const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
+	let configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
-	if (!configFile) throw Error('tsconfig.json not found');
+	if (!configFile) {
+		const soughtFile: string = path.resolve(currentDir, project) ?? '';
+		if(fs.statSync(soughtFile).isDirectory()) {
+			configFile = ts.findConfigFile(soughtFile, ts.sys.fileExists, 'tsconfig.json');
+		}
+		if (!configFile) {
+			throw Error('tsconfig.json not found');
+		}
+	}
 
 	const { config } = ts.readConfigFile(configFile, ts.sys.readFile);
 
