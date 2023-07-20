@@ -141,7 +141,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 	const projectName = path.join(currentDirName, referenceName);
 
 	const { exclude } = ts_config.raw;
-	const { rootDir, outDir } = ts_config.options;
+	const { rootDir, outDir, noEmit } = ts_config.options;
 
 	if (!rootDir) {
 		throw new Error(`No 'rootDir' configured in reference '${referenceName}'`);
@@ -158,7 +158,7 @@ function build_project_path(cwd: string, project_path: string, ts_config: Parsed
 		root_dir: rootDir,
 		out_dir: outDir,
 		exclude: exclude || [],
-		no_emit: ts_config.options.noEmit ?? false,
+		no_emit: noEmit ?? false,
 	};
 }
 
@@ -200,12 +200,12 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 
 		const cwd = path.dirname(reference.path);
 
-		const referenceConfig = get_ts_config(cwd, reference.originalPath!);
+		const referenceConfig = get_ts_config(cwd, reference.originalPath);
 
-		return build_project_path(cwd, reference.originalPath!, referenceConfig);
+		return build_project_path(cwd, reference.originalPath, referenceConfig);
 	});
 
-	const projects_with_emit = projects.filter((project) => project.no_emit === false);
+	const projects_with_emit = projects.filter((project) => !project.no_emit);
 	if (projects_with_emit.length === 0) {
 		throw new Error('At least one project must have emitting enabled');
 	}
