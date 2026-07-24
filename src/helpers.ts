@@ -146,7 +146,7 @@ export function build_project_path(cwd: string, project_path: string, ts_config:
 	const projectName = path.join(currentDirName, referenceName);
 
 	const { exclude } = ts_config.raw;
-	const { rootDir, outDir } = ts_config.options;
+	const { rootDir, outDir, noEmit } = ts_config.options;
 
 	if (!rootDir) {
 		throw new Error(`No 'rootDir' configured in reference '${referenceName}'`);
@@ -163,6 +163,7 @@ export function build_project_path(cwd: string, project_path: string, ts_config:
 		root_dir: rootDir,
 		out_dir: outDir,
 		exclude: exclude || [],
+		no_emit: noEmit ?? false,
 	};
 }
 
@@ -173,7 +174,13 @@ export function build_project_path(cwd: string, project_path: string, ts_config:
 export function get_ts_project_paths(options: Config): TsProject {
 	const { cwd, cli_options, ts_config } = options;
 
-	return build_project_path(cwd, cli_options.project, ts_config);
+	const project = build_project_path(cwd, cli_options.project, ts_config);
+
+	if (project.no_emit) {
+		throw new Error('Project must have emitting enabled');
+	}
+
+	return project;
 }
 
 /**
@@ -187,7 +194,7 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 		throw new Error('No project references configured');
 	}
 
-	return ts_config.projectReferences.map((reference) => {
+	const projects = ts_config.projectReferences.map((reference) => {
 		if (!reference.path) {
 			throw new Error('Could not find project reference path');
 		}
@@ -198,10 +205,17 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 
 		const cwd = path.dirname(reference.path);
 
-		const referenceConfig = get_ts_config(cwd, reference.originalPath!);
+		const referenceConfig = get_ts_config(cwd, reference.originalPath);
 
-		return build_project_path(cwd, reference.originalPath!, referenceConfig);
+		return build_project_path(cwd, reference.originalPath, referenceConfig);
 	});
+
+	const projects_with_emit = projects.filter((project) => !project.no_emit);
+	if (projects_with_emit.length === 0) {
+		throw new Error('At least one project must have emitting enabled');
+	}
+
+	return projects_with_emit;
 }
 
 /**
