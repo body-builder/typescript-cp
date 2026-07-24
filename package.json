@@ -37,8 +37,7 @@
     "fs-extra": "^11.1.1",
     "globby": "^11.1.0",
     "lodash": "^4.17.21",
-    "rimraf": "^5.0.0",
-    "tar": "^6.1.13"
+    "rimraf": "^5.0.0"
   },
   "peerDependencies": {
     "typescript": ">=4.2.3"
