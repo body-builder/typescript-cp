@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 import { validate_path } from '../../src/helpers';
 
 type FileDescriptor = {

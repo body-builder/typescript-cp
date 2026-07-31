@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
 import { describe, expect, it, vitest } from 'vitest';
-import rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 // @ts-ignore
 import { getFileList, readFolderContent, restoreFolderContent } from './utils/fs';
 import {
@@ -219,8 +219,9 @@ describe('helpers', () => {
 					'node_modules',
 					'dist',
 				],
+				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, 'dist'),
-				project_name: 'typescript-cp\\test\\typescript-config\\base',
+				project_name: 'typescript-cp/test/typescript-config/base',
 				root_dir: definitely_posix_path(_cwd, 'src'),
 				ts_config_path: _tsconfig_path,
 			});
@@ -238,8 +239,9 @@ describe('helpers', () => {
 			expect(build_project_path(_cwd, _tsconfig_path, _tsconfig)).toEqual({
 				base_path: _cwd,
 				exclude: [],
+				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, '../lib/core'),
-				project_name: 'typescript-cp\\test\\typescript-config\\project-references\\core',
+				project_name: 'typescript-cp/test/typescript-config/project-references/core',
 				root_dir: definitely_posix_path(_cwd, ''),
 				ts_config_path: _tsconfig_path,
 			});
@@ -255,7 +257,7 @@ describe('helpers', () => {
 			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
 
 			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
-				'No \'rootDir\' configured in reference \'test\\typescript-config\\no-rootDir\'',
+				'No \'rootDir\' configured in reference \'test/typescript-config/no-rootDir\'',
 			);
 		});
 
@@ -269,7 +271,7 @@ describe('helpers', () => {
 			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
 
 			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
-				'No \'outDir\' configured in reference \'test\\typescript-config\\no-outDir\'',
+				'No \'outDir\' configured in reference \'test/typescript-config/no-outDir\'',
 			);
 		});
 	});
@@ -290,8 +292,9 @@ describe('helpers', () => {
 					'node_modules',
 					'dist',
 				],
+				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, 'dist'),
-				project_name: 'typescript-cp\\test\\typescript-config\\base',
+				project_name: 'typescript-cp/test/typescript-config/base',
 				root_dir: definitely_posix_path(_cwd, 'src'),
 				ts_config_path: 'tsconfig.json',
 			});
@@ -309,8 +312,9 @@ describe('helpers', () => {
 			expect(get_ts_project_paths(config)).toEqual({
 				base_path: definitely_posix_path(_cwd),
 				exclude: [],
+				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, '../lib'),
-				project_name: 'typescript-cp\\test\\typescript-config\\project-references',
+				project_name: 'typescript-cp/test/typescript-config/project-references',
 				root_dir: definitely_posix_path(_cwd, ''),
 				ts_config_path: 'tsconfig.json',
 			});
@@ -340,24 +344,27 @@ describe('helpers', () => {
 				{
 					base_path: definitely_posix_path(_cwd, 'core'),
 					exclude: [],
+					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/core'),
-					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\core',
+					project_name: 'typescript-cp/test/typescript-config/project-references/core',
 					root_dir: definitely_posix_path(_cwd, 'core'),
 					ts_config_path: './core/tsconfig.json',
 				},
 				{
 					base_path: definitely_posix_path(_cwd, 'animals'),
 					exclude: [],
+					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/animals'),
-					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\animals',
+					project_name: 'typescript-cp/test/typescript-config/project-references/animals',
 					root_dir: definitely_posix_path(_cwd, 'animals'),
 					ts_config_path: './animals/tsconfig.json',
 				},
 				{
 					base_path: definitely_posix_path(_cwd, 'zoo'),
 					exclude: [],
+					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/zoo'),
-					project_name: 'typescript-cp\\test\\typescript-config\\project-references\\zoo',
+					project_name: 'typescript-cp/test/typescript-config/project-references/zoo',
 					root_dir: definitely_posix_path(_cwd, 'zoo'),
 					ts_config_path: './zoo/tsconfig.json',
 				},
@@ -483,7 +490,7 @@ describe('helpers', () => {
 			});
 
 			const response = await remove_file_or_directory(existingFilePath);
-			expect(response).toBe(undefined);
+			expect(response).toBe(true);
 			expect(fs.existsSync(existingFilePath)).toBe(false);
 
 			// Restore deleted file
@@ -503,7 +510,7 @@ describe('helpers', () => {
 			expect(fs.existsSync(emptyFolderPath)).toBe(true);
 
 			const response = await remove_file_or_directory(emptyFolderPath);
-			expect(response).toBe(undefined);
+			expect(response).toBe(true);
 			expect(fs.existsSync(emptyFolderPath)).toBe(false);
 		});
 
@@ -526,7 +533,7 @@ describe('helpers', () => {
 			});
 
 			const response = await remove_file_or_directory(notEmptyFolderPath);
-			expect(response).toBe(undefined);
+			expect(response).toBe(true);
 			expect(fs.existsSync(notEmptyFolderPath)).toBe(false);
 
 			await restoreFolderContent(_cwd, folderContent);
