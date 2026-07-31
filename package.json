@@ -24,11 +24,11 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
-    "test": "vitest",
+    "test": "vitest --no-watch",
     "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version",
-    "prepack": "npm run clean && npm run build"
+    "prepack": "npm run clean && npm run test && npm run build"
   },
   "author": "Benedek Káldi",
   "license": "ISC",
