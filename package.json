@@ -24,9 +24,11 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
+    "test": "vitest --no-watch",
+    "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version",
-    "prepack": "npm run clean && npm run build"
+    "prepack": "npm run clean && npm run test && npm run build"
   },
   "author": "Benedek Káldi",
   "license": "ISC",
@@ -45,7 +47,9 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^18.16.0",
+    "@vitest/coverage-v8": "3.2.7",
     "standard-version": "^9.5.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^3.2.7"
   }
 }

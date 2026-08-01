@@ -1,3 +1,4 @@
+import * as process from 'process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Command } from 'commander';
@@ -57,7 +58,7 @@ export enum console_colors {
 
 const version = require('../package.json').version;
 
-const defaultProject = ((): string => {
+export const getDefaultProject = (): string => {
 	// process.argv = ['node_path', 'script_path', ...args]
 	const lastArg = process.argv.slice(2).slice(-1)[0];
 
@@ -66,28 +67,32 @@ const defaultProject = ((): string => {
 	}
 
 	return 'tsconfig.json';
-})();
+};
 
-const program = new Command();
+export const getCliOptions = (): CliOptions => {
+	const defaultProject = getDefaultProject();
 
-program
-	.option('-w, --watch', 'Watch input files.')
-	.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
-	.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
-	.version(version, '-v, --version');
+	const program = new Command();
 
-program.parse(process.argv);
+	program
+		.option('-w, --watch', 'Watch input files.')
+		.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
+		.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
+		.version(version, '-v, --version');
 
-// @ts-ignore
-const options: CliOptions = program.opts();
+	program.parse(process.argv);
+
+	return program.opts();
+};
 
 /**
  * Returns the complete, resolved configuration object
  */
-export async function get_config() {
-	const cwd = definitely_posix(process.cwd());
+export async function get_config(_cwd = process.cwd()) {
+	const cwd = definitely_posix(_cwd);
+	const cli_options = getCliOptions();
 
-	const ts_config = get_ts_config(cwd, options.project);
+	const ts_config = get_ts_config(cwd, cli_options.project);
 
 	const explorer = cosmiconfig('tscp');
 	const result = await explorer.search(cwd);
@@ -96,7 +101,7 @@ export async function get_config() {
 
 	const default_config: Config = {
 		cwd,
-		cli_options: options,
+		cli_options,
 		ts_config,
 		use_ts_exclude: true,
 		compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -135,7 +140,7 @@ export function get_ts_config(currentDir: string, project: string): ParsedComman
  * @param project_path
  * @param ts_config
  */
-function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
+export function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
 	const currentDirName = path.basename(path.resolve());
 	const referenceName = path.relative(process.cwd(), cwd);
 	const projectName = path.join(currentDirName, referenceName);
@@ -214,7 +219,8 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
 }
 
 /**
- * Combines the exclude pattern in the tsconfig file and the TSCP `config.ignored_files`
+ * Combines the exclude-pattern in the tsconfig file and the TSCP `config.ignored_files`
+ * TODO Rather return absolute paths?
  * @param config
  * @param projects
  */
@@ -227,6 +233,7 @@ export function get_ignore_list(config: Config, projects: TsProject | TsProject[
 		const ts_exclude_list = safe_projects.map((project) => {
 			return project.exclude.map((rule) => {
 				// Handle if the exclude pattern contains the name of the root directory
+				// TODO this should be done one level higher
 				const rootDirName = project.root_dir.replace(project.base_path + '/', '') + '/';
 				if (rule.startsWith(rootDirName)) {
 					return rule.replace(rootDirName, '');
@@ -311,6 +318,8 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 	const is_directory = stats.isDirectory();
 
 	if (is_directory) {
+		// TODO Currently we only create the empty directory. This doesn't seem to be very useful,
+		//  we should call `copy_file_or_directory` recursively on all files, and apply the loaders.
 		return fs.promises.mkdir(destination_path);
 	}
 
@@ -331,13 +340,15 @@ export async function copy_file_or_directory(source_path: string, destination_pa
  * @param rule_condition
  * @param config
  */
-function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
+export function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
 	if (Array.isArray(rule_condition)) {
+		// TODO Only flat arrays should be allowed, don't allow rule-condition: [rule-1, [rule-2-1, rule-2-2], rule-3]
 		return rule_condition.every((sub_condition) => test_rule_condition(source_path, sub_condition, config));
 	}
 
 	// An exact absolute path string
 	if (typeof rule_condition === 'string') {
+		// TODO Throw error on startup if rule_condition is not absolute path?
 		return rule_condition === source_path;
 	}
 
@@ -346,6 +357,8 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
 	}
 
 	if (typeof rule_condition === 'function') {
+		// TODO Force boolean?
+		//  return rule_condition(source_path) === true;
 		return rule_condition(source_path);
 	}
 
@@ -358,11 +371,12 @@ function test_rule_condition(source_path: string, rule_condition: RuleCondition,
  * @param rule
  * @param config
  */
-function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
+export function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
 	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
 	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
 	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
 
+	// TODO Do as less computation as possible. Don't call `rule.test`, if the file is e.g. excluded.
 	if (isIncluded === true) {
 		return true;
 	}

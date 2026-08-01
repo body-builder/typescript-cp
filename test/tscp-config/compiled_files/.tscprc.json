@@ -1,0 +1,7 @@
+{
+  "compiled_files": [
+    "compiled-file",
+    "C:\\compiled\\path.js",
+    "/path/to/compiled/file.js"
+  ]
+}

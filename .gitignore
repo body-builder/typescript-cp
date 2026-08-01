@@ -6,3 +6,6 @@
 
 # Compiled files
 /dist
+
+# Tests
+/coverage
