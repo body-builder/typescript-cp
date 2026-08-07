@@ -24,6 +24,7 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
+    "typescript": "tsc --noEmit",
     "test": "vitest --no-watch",
     "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
