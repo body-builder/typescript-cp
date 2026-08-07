@@ -6,7 +6,14 @@ import ts, { ParsedCommandLine } from 'typescript';
 import fse from 'fs-extra';
 import { rimraf } from 'rimraf';
 import { cosmiconfig } from 'cosmiconfig';
-import { CliOptions, Config, LoaderMeta, Rule, RuleCondition, TsProject } from './types';
+import {
+	CliOptions,
+	Config,
+	LoaderMeta,
+	Rule,
+	RuleCondition,
+	TsProject,
+} from './types';
 
 // https://stackoverflow.com/a/41407246/3111787
 // https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
@@ -77,8 +84,15 @@ export const getCliOptions = (): CliOptions => {
 
 	program
 		.option('-w, --watch', 'Watch input files.')
-		.option('-b, --build', 'Build one or more projects and their dependencies, if out of date')
-		.option('-p , --project <path>', 'FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a \'tsconfig.json\'', defaultProject)
+		.option(
+			'-b, --build',
+			'Build one or more projects and their dependencies, if out of date',
+		)
+		.option(
+			'-p , --project <path>',
+			"FILE OR DIRECTORY Compile the project given the path to its configuration file, or to a folder with a 'tsconfig.json'",
+			defaultProject,
+		)
 		.version(version, '-v, --version');
 
 	program.parse(process.argv);
@@ -125,7 +139,10 @@ export async function get_config(_cwd = process.cwd()) {
  * @param currentDir
  * @param project
  */
-export function get_ts_config(currentDir: string, project: string): ParsedCommandLine {
+export function get_ts_config(
+	currentDir: string,
+	project: string,
+): ParsedCommandLine {
 	const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, project);
 
 	if (!configFile) throw Error('tsconfig.json not found');
@@ -141,7 +158,11 @@ export function get_ts_config(currentDir: string, project: string): ParsedComman
  * @param project_path
  * @param ts_config
  */
-export function build_project_path(cwd: string, project_path: string, ts_config: ParsedCommandLine): TsProject {
+export function build_project_path(
+	cwd: string,
+	project_path: string,
+	ts_config: ParsedCommandLine,
+): TsProject {
 	const currentDirName = path.basename(path.resolve());
 	const referenceName = path.relative(process.cwd(), cwd);
 	const projectName = path.join(currentDirName, referenceName);
@@ -225,24 +246,30 @@ export function get_ts_projects_paths(options: Config): TsProject[] {
  * @param config
  * @param projects
  */
-export function get_ignore_list(config: Config, projects: TsProject | TsProject[]): string[] {
+export function get_ignore_list(
+	config: Config,
+	projects: TsProject | TsProject[],
+): string[] {
 	const ignore_list: string[] = [];
 
 	if (config.use_ts_exclude) {
 		const safe_projects = !Array.isArray(projects) ? [projects] : projects;
 
-		const ts_exclude_list = safe_projects.map((project) => {
-			return project.exclude.map((rule) => {
-				// Handle if the exclude pattern contains the name of the root directory
-				// TODO this should be done one level higher
-				const rootDirName = project.root_dir.replace(project.base_path + '/', '') + '/';
-				if (rule.startsWith(rootDirName)) {
-					return rule.replace(rootDirName, '');
-				}
+		const ts_exclude_list = safe_projects
+			.map((project) => {
+				return project.exclude.map((rule) => {
+					// Handle if the exclude pattern contains the name of the root directory
+					// TODO this should be done one level higher
+					const rootDirName =
+						project.root_dir.replace(project.base_path + '/', '') + '/';
+					if (rule.startsWith(rootDirName)) {
+						return rule.replace(rootDirName, '');
+					}
 
-				return rule;
-			});
-		}).flat();
+					return rule;
+				});
+			})
+			.flat();
 
 		ignore_list.push(...ts_exclude_list);
 	}
@@ -257,7 +284,10 @@ export function get_ignore_list(config: Config, projects: TsProject | TsProject[
  * @param msg
  * @param color
  */
-export function color_log(msg: string, color: typeof console_colors[keyof typeof console_colors]): string {
+export function color_log(
+	msg: string,
+	color: (typeof console_colors)[keyof typeof console_colors],
+): string {
 	return `${color}${msg}${console_colors.Reset}`;
 }
 
@@ -268,7 +298,7 @@ export function color_log(msg: string, color: typeof console_colors[keyof typeof
 export async function validate_path(p: string): Promise<void> {
 	const dirname = path.dirname(p);
 
-	if (!await get_file_stats(dirname)) {
+	if (!(await get_file_stats(dirname))) {
 		await fs.promises.mkdir(dirname, { recursive: true });
 	}
 }
@@ -277,7 +307,9 @@ export async function validate_path(p: string): Promise<void> {
  * Error-safe `fs.lstat` - returns stats if the file exists, otherwise null
  * @param file_path
  */
-export async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
+export async function get_file_stats(
+	file_path: string,
+): Promise<fs.Stats | void> {
 	try {
 		return await fse.lstat(file_path);
 		/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -290,7 +322,9 @@ export async function get_file_stats(file_path: string): Promise<fs.Stats | void
  * Deletes the `file_path` file. Doesn't throw error if the file doesn't exist.
  * @param file_path
  */
-export async function remove_file_or_directory(file_path: string): Promise<boolean> {
+export async function remove_file_or_directory(
+	file_path: string,
+): Promise<boolean> {
 	const stats = await get_file_stats(file_path);
 
 	if (!stats) {
@@ -310,7 +344,11 @@ const files_without_loaders: string[] = [];
  * @param destination_path
  * @param config
  */
-export async function copy_file_or_directory(source_path: string, destination_path: string, config: Config): Promise<void> {
+export async function copy_file_or_directory(
+	source_path: string,
+	destination_path: string,
+	config: Config,
+): Promise<void> {
 	const stats = await get_file_stats(source_path);
 
 	if (!stats) {
@@ -329,7 +367,12 @@ export async function copy_file_or_directory(source_path: string, destination_pa
 
 	const raw_content = await fse.readFile(source_path);
 
-	const processed_content = await apply_loaders(raw_content, source_path, destination_path, config);
+	const processed_content = await apply_loaders(
+		raw_content,
+		source_path,
+		destination_path,
+		config,
+	);
 
 	await validate_path(destination_path);
 
@@ -342,10 +385,16 @@ export async function copy_file_or_directory(source_path: string, destination_pa
  * @param rule_condition
  * @param config
  */
-export function test_rule_condition(source_path: string, rule_condition: RuleCondition, config: Config): boolean {
+export function test_rule_condition(
+	source_path: string,
+	rule_condition: RuleCondition,
+	config: Config,
+): boolean {
 	if (Array.isArray(rule_condition)) {
 		// TODO Only flat arrays should be allowed, don't allow rule-condition: [rule-1, [rule-2-1, rule-2-2], rule-3]
-		return rule_condition.every((sub_condition) => test_rule_condition(source_path, sub_condition, config));
+		return rule_condition.every((sub_condition) =>
+			test_rule_condition(source_path, sub_condition, config),
+		);
 	}
 
 	// An exact absolute path string
@@ -373,10 +422,23 @@ export function test_rule_condition(source_path: string, rule_condition: RuleCon
  * @param rule
  * @param config
  */
-export function apply_rule_condition(source_path: string, rule: Rule, config: Config): boolean {
-	const isMatching: boolean | null = rule.test !== undefined ? test_rule_condition(source_path, rule.test, config) : null;
-	const isIncluded: boolean | null = rule.include !== undefined ? test_rule_condition(source_path, rule.include, config) : null;
-	const isExcluded: boolean | null = rule.exclude !== undefined ? test_rule_condition(source_path, rule.exclude, config) : null;
+export function apply_rule_condition(
+	source_path: string,
+	rule: Rule,
+	config: Config,
+): boolean {
+	const isMatching: boolean | null =
+		rule.test !== undefined
+			? test_rule_condition(source_path, rule.test, config)
+			: null;
+	const isIncluded: boolean | null =
+		rule.include !== undefined
+			? test_rule_condition(source_path, rule.include, config)
+			: null;
+	const isExcluded: boolean | null =
+		rule.exclude !== undefined
+			? test_rule_condition(source_path, rule.exclude, config)
+			: null;
 
 	// TODO Do as less computation as possible. Don't call `rule.test`, if the file is e.g. excluded.
 	if (isIncluded === true) {
@@ -401,13 +463,20 @@ export function apply_rule_condition(source_path: string, rule: Rule, config: Co
  * @param destination_path
  * @param config
  */
-async function apply_loaders(raw_content: Buffer, source_path: string, destination_path: string, config: Config): Promise<Buffer> {
+async function apply_loaders(
+	raw_content: Buffer,
+	source_path: string,
+	destination_path: string,
+	config: Config,
+): Promise<Buffer> {
 	let processed_content = raw_content;
 
 	const should_process_file = files_without_loaders.indexOf(source_path) === -1;
 
 	if (should_process_file) {
-		const used_rules = config.rules.filter((rule) => apply_rule_condition(source_path, rule, config));
+		const used_rules = config.rules.filter((rule) =>
+			apply_rule_condition(source_path, rule, config),
+		);
 
 		if (!used_rules.length) {
 			files_without_loaders.push(source_path);
@@ -422,24 +491,22 @@ async function apply_loaders(raw_content: Buffer, source_path: string, destinati
 
 		processed_content = await used_rules.reduce((content, rule) => {
 			return [...rule.use].reverse().reduce((content, loader) => {
-					let loaderFn;
+				let loaderFn;
 
-					switch (typeof loader.loader) {
-						case 'function':
-							loaderFn = loader.loader;
-							break;
-						case 'string':
-							/* eslint-disable-next-line @typescript-eslint/no-require-imports */
-							loaderFn = require(path.resolve(loader.loader));
-							break;
-						default:
-							throw new Error('Invalid loader type');
-					}
+				switch (typeof loader.loader) {
+					case 'function':
+						loaderFn = loader.loader;
+						break;
+					case 'string':
+						/* eslint-disable-next-line @typescript-eslint/no-require-imports */
+						loaderFn = require(path.resolve(loader.loader));
+						break;
+					default:
+						throw new Error('Invalid loader type');
+				}
 
-					return loaderFn(content, loaderMeta);
-				},
-				processed_content,
-			);
+				return loaderFn(content, loaderMeta);
+			}, processed_content);
 		}, processed_content);
 	}
 
@@ -451,7 +518,7 @@ async function apply_loaders(raw_content: Buffer, source_path: string, destinati
  * @param ms
  */
 export function sleep(ms: number) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

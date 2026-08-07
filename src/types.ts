@@ -4,7 +4,7 @@ export type CliOptions = {
 	watch?: boolean;
 	build?: boolean;
 	project: string;
-}
+};
 
 export type Config = {
 	/**
@@ -15,12 +15,12 @@ export type Config = {
 	/**
 	 * Config coming from `process.arg`
 	 */
-	cli_options: CliOptions,
+	cli_options: CliOptions;
 
 	/**
 	 * The complete tsconfig object
 	 */
-	ts_config: ParsedCommandLine,
+	ts_config: ParsedCommandLine;
 
 	/**
 	 * Ignore files that are listed in the tsconfig `exclude` array
@@ -44,7 +44,7 @@ export type Config = {
 	 * Set of loader rules to preprocess the file content before copying
 	 */
 	rules: Rule[];
-}
+};
 
 export type Rule = {
 	test?: RuleCondition;
@@ -53,16 +53,13 @@ export type Rule = {
 	use: Loader[];
 	// TODO This hasn't been implemented yet.
 	// options?: { [key: string]: any }
-}
+};
 
 /**
  * Resource paths always meant to be absolute paths.
  */
 export type RuleCondition =
-	| RegExp
-	| string
-	| ((path: string) => boolean)
-	| RuleConditions;
+	RegExp | string | ((path: string) => boolean) | RuleConditions;
 
 export type RuleConditions = RuleCondition[];
 
@@ -70,10 +67,8 @@ export type Loader = {
 	/**
 	 * A path reference to the loader function, or the loader function itself.
 	 */
-	loader:
-		| string
-		| LoaderFunction;
-}
+	loader: string | LoaderFunction;
+};
 
 /**
  * The loader function accepts the actual content of the given file as the first parameter, and must return the content of the output file.
@@ -84,7 +79,7 @@ export type LoaderMeta = {
 	source_path: string;
 	destination_path: string;
 	config: Config;
-}
+};
 
 export type TsProject = {
 	project_name: string;
@@ -94,8 +89,8 @@ export type TsProject = {
 	out_dir: string;
 	exclude: string[];
 	no_emit: boolean;
-}
+};
 
 export type TsProjectWithFiles = TsProject & {
 	source_files: string[];
-}
+};
