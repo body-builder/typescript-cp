@@ -23,7 +23,7 @@
     "newLine": "lf",
     "declaration": true,
     "baseUrl": "src",
-    "rootDir": "src",
+    "rootDirs": ["src", "test"],
     "outDir": "./dist"
   },
   "include": [
