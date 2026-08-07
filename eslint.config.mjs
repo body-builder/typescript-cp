@@ -9,4 +9,9 @@ export default defineConfig([
 	tseslint.configs.recommended,
 	{ files: ['**/*.json'], plugins: { json }, language: 'json/json' },
 	{ files: ['**/*.css'], plugins: { css }, language: 'css/css' },
+	{
+		rules: {
+			'@typescript-eslint/no-unused-vars': 'warn',
+		},
+	},
 ]);

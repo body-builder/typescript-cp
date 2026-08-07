@@ -56,6 +56,7 @@ export enum console_colors {
 	BgBrightWhite = '\x1b[107m',
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 const version = require('../package.json').version;
 
 export const getDefaultProject = (): string => {
@@ -279,6 +280,7 @@ export async function validate_path(p: string): Promise<void> {
 export async function get_file_stats(file_path: string): Promise<fs.Stats | void> {
 	try {
 		return await fse.lstat(file_path);
+		/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 	} catch (e) {
 		return Promise.resolve();
 	}
@@ -427,6 +429,7 @@ async function apply_loaders(raw_content: Buffer, source_path: string, destinati
 							loaderFn = loader.loader;
 							break;
 						case 'string':
+							/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 							loaderFn = require(path.resolve(loader.loader));
 							break;
 						default:

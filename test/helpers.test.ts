@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as process from 'process';
 import { describe, expect, it, vitest } from 'vitest';
 import { rimraf } from 'rimraf';
-// @ts-ignore
 import { getFileList, readFolderContent, restoreFolderContent } from './utils/fs';
 import {
 	apply_rule_condition,
@@ -158,6 +157,7 @@ describe('helpers', () => {
 			expect(ts_config.errors).toEqual([]);
 			expect(ts_config.fileNames).toEqual([definitely_posix_path(_cwd, 'src/index.ts')]);
 
+			/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 			const _raw_tsconfig = require(path.join(_cwd, 'tsconfig.json'));
 			expect(ts_config.raw).toMatchObject(_raw_tsconfig);
 		});
@@ -171,6 +171,7 @@ describe('helpers', () => {
 			expect(ts_config.errors).toEqual([]);
 			expect(ts_config.fileNames).toEqual([]);
 
+			/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 			const _raw_tsconfig = require(path.resolve(_cwd, 'tsconfig.json'));
 			expect(ts_config.raw).toMatchObject(_raw_tsconfig);
 
@@ -734,11 +735,11 @@ describe('helpers', () => {
 			// TODO This shouldn't be like this. We should convert the return value to boolean.
 			//  Even though `apply_rule_condition` will only accept true, and anything else will treated as false.
 			it('should allow any truthy/falsy return values for the callback\'s return value', () => {
-				// @ts-expect-error
+				// @ts-expect-error Invalid `condition` value
 				expect(test_rule_condition('./example.js', () => null, config)).toBe(null);
-				// @ts-expect-error
+				// @ts-expect-error Invalid `condition` value
 				expect(test_rule_condition('./example.js', () => undefined, config)).toBe(undefined);
-				// @ts-expect-error
+				// @ts-expect-error Invalid `condition` value
 				expect(test_rule_condition('./example.js', () => '', config)).toBe('');
 			});
 		});
@@ -928,19 +929,19 @@ describe('helpers', () => {
 			}, config)).toBe(true);
 
 			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
+				// @ts-expect-error Invalid `test` return value
 				test: () => 1,
 				use: [],
 			}, config)).toBe(false);
 
 			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
+				// @ts-expect-error Invalid `test` return value
 				test: () => undefined,
 				use: [],
 			}, config)).toBe(false);
 
 			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
+				// @ts-expect-error Invalid `test` return value
 				test: () => 'string',
 				use: [],
 			}, config)).toBe(false);

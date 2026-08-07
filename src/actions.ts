@@ -70,7 +70,7 @@ export async function copy_files(projects: TsProject[], config: Config): Promise
 
 	// Delete files
 	// we should do this in two steps, to avoid possible deletion of already linked files (when a folder gets )
-	await Promise.all(all_projects_files.map(async ({ source_path, target_path }) => {
+	await Promise.all(all_projects_files.map(async ({ target_path }) => {
 		return remove_file_or_directory(target_path);
 	}));
 
@@ -124,6 +124,7 @@ export async function watch_files(projects: TsProject[], config: Config): Promis
 		};
 	}
 
+	/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 	async function watch_idle_log(msg: string = 'Watching files for changes', timeout: number = 1000, clear: boolean = true): Promise<void> {
 		await sleep(1000);
 		if (clear) {
