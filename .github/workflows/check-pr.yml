@@ -10,6 +10,7 @@ on:
 
 jobs:
   check:
+    name: Lint + Test
     runs-on: ubuntu-latest
 
     steps:
