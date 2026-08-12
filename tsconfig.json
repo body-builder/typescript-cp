@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "downlevelIteration": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "noImplicitAny": false,
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,10 +19,8 @@
     "newLine": "lf",
     "declaration": true,
     "baseUrl": "src",
-    "rootDir": "src",
+    "rootDirs": ["src", "test"],
     "outDir": "./dist"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

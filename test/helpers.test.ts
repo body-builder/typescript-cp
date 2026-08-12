@@ -3,8 +3,11 @@ import * as path from 'path';
 import * as process from 'process';
 import { describe, expect, it, vitest } from 'vitest';
 import { rimraf } from 'rimraf';
-// @ts-ignore
-import { getFileList, readFolderContent, restoreFolderContent } from './utils/fs';
+import {
+	getFileList,
+	readFolderContent,
+	restoreFolderContent,
+} from './utils/fs';
 import {
 	apply_rule_condition,
 	build_project_path,
@@ -22,7 +25,8 @@ import {
 	validate_path,
 } from '../src/helpers';
 
-const definitely_posix_path = (...args) => definitely_posix(path.resolve(...args));
+const definitely_posix_path = (...args) =>
+	definitely_posix(path.resolve(...args));
 
 describe('helpers', () => {
 	describe('getDefaultProject', () => {
@@ -59,12 +63,7 @@ describe('helpers', () => {
 				cli_options: {
 					project: 'tsconfig.json',
 				},
-				compiled_files: [
-					'**/*.ts',
-					'**/*.tsx',
-					'**/*.js',
-					'**/*.jsx',
-				],
+				compiled_files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
 				ignored_files: [
 					'**/*.ts',
 					'**/*.tsx',
@@ -86,7 +85,9 @@ describe('helpers', () => {
 		});
 
 		it('should use the CLI options passed', async () => {
-			const tsconfig_path = path.resolve('./test/typescript-config/extended/custom.json');
+			const tsconfig_path = path.resolve(
+				'./test/typescript-config/extended/custom.json',
+			);
 			expect(fs.existsSync(tsconfig_path)).toBe(true);
 
 			process.argv.push('--watch', tsconfig_path);
@@ -114,7 +115,6 @@ describe('helpers', () => {
 				'ignored-file',
 				'C:\\ignored\\path.js',
 				'/path/to/ignored/file.js',
-
 			]);
 
 			// Compiled files should not change
@@ -156,8 +156,11 @@ describe('helpers', () => {
 			const ts_config = await get_ts_config(_cwd, 'tsconfig.json');
 
 			expect(ts_config.errors).toEqual([]);
-			expect(ts_config.fileNames).toEqual([definitely_posix_path(_cwd, 'src/index.ts')]);
+			expect(ts_config.fileNames).toEqual([
+				definitely_posix_path(_cwd, 'src/index.ts'),
+			]);
 
+			/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 			const _raw_tsconfig = require(path.join(_cwd, 'tsconfig.json'));
 			expect(ts_config.raw).toMatchObject(_raw_tsconfig);
 		});
@@ -171,6 +174,7 @@ describe('helpers', () => {
 			expect(ts_config.errors).toEqual([]);
 			expect(ts_config.fileNames).toEqual([]);
 
+			/* eslint-disable-next-line @typescript-eslint/no-require-imports */
 			const _raw_tsconfig = require(path.resolve(_cwd, 'tsconfig.json'));
 			expect(ts_config.raw).toMatchObject(_raw_tsconfig);
 
@@ -197,9 +201,9 @@ describe('helpers', () => {
 		});
 
 		it('should throw error if the requested config file is not found', async () => {
-			expect(() => get_ts_config(process.cwd(), 'not-existing-config.json')).toThrowError(
-				'tsconfig.json not found',
-			);
+			expect(() =>
+				get_ts_config(process.cwd(), 'not-existing-config.json'),
+			).toThrowError('tsconfig.json not found');
 		});
 	});
 
@@ -215,10 +219,7 @@ describe('helpers', () => {
 
 			expect(build_project_path(_cwd, _tsconfig_path, _tsconfig)).toEqual({
 				base_path: _cwd,
-				exclude: [
-					'node_modules',
-					'dist',
-				],
+				exclude: ['node_modules', 'dist'],
 				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, 'dist'),
 				project_name: 'typescript-cp/test/typescript-config/base',
@@ -228,7 +229,9 @@ describe('helpers', () => {
 		});
 
 		it('should handle a TS project with project references', () => {
-			const _cwd = path.resolve('./test/typescript-config/project-references/core');
+			const _cwd = path.resolve(
+				'./test/typescript-config/project-references/core',
+			);
 			expect(fs.existsSync(_cwd)).toBe(true);
 
 			const _tsconfig_path = path.resolve(_cwd, 'tsconfig.json');
@@ -241,7 +244,8 @@ describe('helpers', () => {
 				exclude: [],
 				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, '../lib/core'),
-				project_name: 'typescript-cp/test/typescript-config/project-references/core',
+				project_name:
+					'typescript-cp/test/typescript-config/project-references/core',
 				root_dir: definitely_posix_path(_cwd, ''),
 				ts_config_path: _tsconfig_path,
 			});
@@ -256,8 +260,10 @@ describe('helpers', () => {
 
 			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
 
-			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
-				'No \'rootDir\' configured in reference \'test/typescript-config/no-rootDir\'',
+			expect(() =>
+				build_project_path(_cwd, _tsconfig_path, _tsconfig),
+			).toThrowError(
+				"No 'rootDir' configured in reference 'test/typescript-config/no-rootDir'",
 			);
 		});
 
@@ -270,8 +276,10 @@ describe('helpers', () => {
 
 			const _tsconfig = get_ts_config(_cwd, 'tsconfig.json');
 
-			expect(() => build_project_path(_cwd, _tsconfig_path, _tsconfig)).toThrowError(
-				'No \'outDir\' configured in reference \'test/typescript-config/no-outDir\'',
+			expect(() =>
+				build_project_path(_cwd, _tsconfig_path, _tsconfig),
+			).toThrowError(
+				"No 'outDir' configured in reference 'test/typescript-config/no-outDir'",
 			);
 		});
 	});
@@ -288,10 +296,7 @@ describe('helpers', () => {
 
 			expect(get_ts_project_paths(config)).toEqual({
 				base_path: definitely_posix_path(_cwd),
-				exclude: [
-					'node_modules',
-					'dist',
-				],
+				exclude: ['node_modules', 'dist'],
 				no_emit: false,
 				out_dir: definitely_posix_path(_cwd, 'dist'),
 				project_name: 'typescript-cp/test/typescript-config/base',
@@ -328,7 +333,9 @@ describe('helpers', () => {
 
 			const config = await get_config(_cwd);
 
-			expect(() => get_ts_projects_paths(config)).toThrowError('No project references configured');
+			expect(() => get_ts_projects_paths(config)).toThrowError(
+				'No project references configured',
+			);
 		});
 
 		it('should handle a TS project with project references', async () => {
@@ -346,7 +353,8 @@ describe('helpers', () => {
 					exclude: [],
 					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/core'),
-					project_name: 'typescript-cp/test/typescript-config/project-references/core',
+					project_name:
+						'typescript-cp/test/typescript-config/project-references/core',
 					root_dir: definitely_posix_path(_cwd, 'core'),
 					ts_config_path: './core/tsconfig.json',
 				},
@@ -355,7 +363,8 @@ describe('helpers', () => {
 					exclude: [],
 					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/animals'),
-					project_name: 'typescript-cp/test/typescript-config/project-references/animals',
+					project_name:
+						'typescript-cp/test/typescript-config/project-references/animals',
 					root_dir: definitely_posix_path(_cwd, 'animals'),
 					ts_config_path: './animals/tsconfig.json',
 				},
@@ -364,7 +373,8 @@ describe('helpers', () => {
 					exclude: [],
 					no_emit: false,
 					out_dir: definitely_posix_path(_cwd, 'lib/zoo'),
-					project_name: 'typescript-cp/test/typescript-config/project-references/zoo',
+					project_name:
+						'typescript-cp/test/typescript-config/project-references/zoo',
 					root_dir: definitely_posix_path(_cwd, 'zoo'),
 					ts_config_path: './zoo/tsconfig.json',
 				},
@@ -397,7 +407,7 @@ describe('helpers', () => {
 	});
 
 	describe('validate_path', () => {
-		it('should create the folder tree recursively if it doesn\'t exist', async () => {
+		it("should create the folder tree recursively if it doesn't exist", async () => {
 			const _cwd = path.resolve('./test/fs-actions/validate_path');
 			expect(fs.existsSync(_cwd)).toBe(true);
 
@@ -412,7 +422,9 @@ describe('helpers', () => {
 			expect(fs.existsSync(newFilePath)).toBe(false);
 
 			const newFileDirname = path.dirname(newFilePath);
-			expect(newFileDirname).toBe(newFilePath.replace(`${path.sep}file3.js`, ''));
+			expect(newFileDirname).toBe(
+				newFilePath.replace(`${path.sep}file3.js`, ''),
+			);
 
 			// But the folder should be there
 			expect(fs.existsSync(newFileDirname)).toBe(true);
@@ -422,7 +434,7 @@ describe('helpers', () => {
 			expect(fs.existsSync(newFileDirname)).toBe(false);
 		});
 
-		it('shouldn\'t change anything in the file system if the folder exists', async () => {
+		it("shouldn't change anything in the file system if the folder exists", async () => {
 			const _cwd = path.resolve('./test/fs-actions/validate_path');
 			expect(fs.existsSync(_cwd)).toBe(true);
 
@@ -463,11 +475,16 @@ describe('helpers', () => {
 			const _cwd = path.resolve('./test/fs-actions/validate_path');
 			expect(fs.existsSync(_cwd)).toBe(true);
 
-			const notExistingFilePath = path.resolve(_cwd, 'not-existing-folder/file.txt');
+			const notExistingFilePath = path.resolve(
+				_cwd,
+				'not-existing-folder/file.txt',
+			);
 			expect(fs.existsSync(notExistingFilePath)).toBe(false);
 
 			// it shouldn't throw error like normal `lstat` would throw.
-			expect(async () => await get_file_stats(notExistingFilePath)).not.toThrowError();
+			expect(
+				async () => await get_file_stats(notExistingFilePath),
+			).not.toThrowError();
 
 			const response = await get_file_stats(notExistingFilePath);
 			expect(response).toBe(undefined);
@@ -483,7 +500,9 @@ describe('helpers', () => {
 			expect(fs.existsSync(existingFilePath)).toBe(true);
 
 			const folderContent = await readFolderContent(_cwd);
-			const existingFileDescriptor = folderContent.find(({ filePath }) => filePath === existingFilePath);
+			const existingFileDescriptor = folderContent.find(
+				({ filePath }) => filePath === existingFilePath,
+			);
 			expect(existingFileDescriptor).toEqual({
 				filePath: existingFilePath,
 				fileData: Buffer.from('/* file.css */\n', 'utf-8'),
@@ -496,7 +515,9 @@ describe('helpers', () => {
 			// Restore deleted file
 			await restoreFolderContent(_cwd, folderContent);
 			expect(fs.existsSync(existingFilePath)).toBe(true);
-			expect(await fs.promises.readFile(existingFilePath)).toEqual(existingFileDescriptor?.fileData);
+			expect(await fs.promises.readFile(existingFilePath)).toEqual(
+				existingFileDescriptor?.fileData,
+			);
 		});
 
 		it('should delete an empty folder', async () => {
@@ -526,7 +547,9 @@ describe('helpers', () => {
 
 			const folderContent = await readFolderContent(_cwd);
 			// TODO Create separate unit tests for `readFolderContent` and `restoreFolderContent`
-			const childFileDescriptor = folderContent.find(({ filePath }) => filePath === childFilePath);
+			const childFileDescriptor = folderContent.find(
+				({ filePath }) => filePath === childFilePath,
+			);
 			expect(childFileDescriptor).toEqual({
 				filePath: path.resolve(notEmptyFolderPath, 'file.js'),
 				fileData: Buffer.from('', 'utf-8'),
@@ -538,16 +561,22 @@ describe('helpers', () => {
 
 			await restoreFolderContent(_cwd, folderContent);
 			expect(fs.existsSync(childFilePath)).toBe(true);
-			expect(await fs.promises.readFile(childFilePath)).toEqual(childFileDescriptor?.fileData);
+			expect(await fs.promises.readFile(childFilePath)).toEqual(
+				childFileDescriptor?.fileData,
+			);
 		});
 	});
 
 	describe('copy_file_or_directory', () => {
 		it('should copy a file', async () => {
-			const _source_cwd = path.resolve('./test/fs-actions/remove_file_or_directory');
+			const _source_cwd = path.resolve(
+				'./test/fs-actions/remove_file_or_directory',
+			);
 			expect(fs.existsSync(_source_cwd)).toBe(true);
 
-			const _target_cwd = path.resolve('./test/fs-actions/copy_file_or_directory');
+			const _target_cwd = path.resolve(
+				'./test/fs-actions/copy_file_or_directory',
+			);
 			expect(fs.existsSync(_target_cwd)).toBe(true);
 
 			const sourceFilePath = path.resolve(_source_cwd, 'file.css');
@@ -567,10 +596,14 @@ describe('helpers', () => {
 		});
 
 		it('should copy a directory', async () => {
-			const _source_cwd = path.resolve('./test/fs-actions/remove_file_or_directory');
+			const _source_cwd = path.resolve(
+				'./test/fs-actions/remove_file_or_directory',
+			);
 			expect(fs.existsSync(_source_cwd)).toBe(true);
 
-			const _target_cwd = path.resolve('./test/fs-actions/copy_file_or_directory');
+			const _target_cwd = path.resolve(
+				'./test/fs-actions/copy_file_or_directory',
+			);
 			expect(fs.existsSync(_target_cwd)).toBe(true);
 
 			const sourceFolderPath = path.resolve(_source_cwd, 'sub-folder');
@@ -597,10 +630,14 @@ describe('helpers', () => {
 		});
 
 		it('should overwrite existing files', async () => {
-			const _source_cwd = path.resolve('./test/fs-actions/remove_file_or_directory');
+			const _source_cwd = path.resolve(
+				'./test/fs-actions/remove_file_or_directory',
+			);
 			expect(fs.existsSync(_source_cwd)).toBe(true);
 
-			const _target_cwd = path.resolve('./test/fs-actions/copy_file_or_directory');
+			const _target_cwd = path.resolve(
+				'./test/fs-actions/copy_file_or_directory',
+			);
 			expect(fs.existsSync(_target_cwd)).toBe(true);
 
 			const sourceFilePath = path.resolve(_source_cwd, 'file.css');
@@ -609,10 +646,16 @@ describe('helpers', () => {
 			const targetFilePath = path.resolve(_target_cwd, 'existing-file.css');
 			expect(fs.existsSync(targetFilePath)).toBe(true);
 
-			const sourceFileContent = await fs.promises.readFile(sourceFilePath, 'utf-8');
+			const sourceFileContent = await fs.promises.readFile(
+				sourceFilePath,
+				'utf-8',
+			);
 			expect(sourceFileContent).toBe('/* file.css */\n');
 
-			const targetFileContent = await fs.promises.readFile(targetFilePath, 'utf-8');
+			const targetFileContent = await fs.promises.readFile(
+				targetFilePath,
+				'utf-8',
+			);
 			expect(targetFileContent).toBe('/* existing-file.css */\n');
 
 			const config = await get_config();
@@ -621,7 +664,9 @@ describe('helpers', () => {
 
 			await copy_file_or_directory(sourceFilePath, targetFilePath, config);
 			expect(fs.existsSync(targetFilePath)).toBe(true);
-			expect(await fs.promises.readFile(targetFilePath, 'utf-8')).toBe(sourceFileContent);
+			expect(await fs.promises.readFile(targetFilePath, 'utf-8')).toBe(
+				sourceFileContent,
+			);
 
 			await restoreFolderContent(_target_cwd, targetFolderContent);
 		});
@@ -630,7 +675,9 @@ describe('helpers', () => {
 			const _source_cwd = path.resolve('./test/loaders');
 			expect(fs.existsSync(_source_cwd)).toBe(true);
 
-			const _target_cwd = path.resolve('./test/fs-actions/copy_file_or_directory');
+			const _target_cwd = path.resolve(
+				'./test/fs-actions/copy_file_or_directory',
+			);
 			expect(fs.existsSync(_target_cwd)).toBe(true);
 
 			const sourceFilePath = path.resolve(_source_cwd, 'basic.sass');
@@ -639,7 +686,10 @@ describe('helpers', () => {
 			const targetFilePath = path.resolve(_target_cwd, 'basic.sass');
 			expect(fs.existsSync(targetFilePath)).toBe(false);
 
-			const sourceFileContent = await fs.promises.readFile(sourceFilePath, 'utf-8');
+			const sourceFileContent = await fs.promises.readFile(
+				sourceFilePath,
+				'utf-8',
+			);
 			expect(sourceFileContent).toBe('// basic.sass\n');
 
 			const config = await get_config();
@@ -661,7 +711,9 @@ describe('helpers', () => {
 
 			await copy_file_or_directory(sourceFilePath, targetFilePath, config);
 			expect(fs.existsSync(targetFilePath)).toBe(true);
-			expect(await fs.promises.readFile(targetFilePath, 'utf-8')).toBe('// basic.sass\n/* loader 1 + 2 */\n');
+			expect(await fs.promises.readFile(targetFilePath, 'utf-8')).toBe(
+				'// basic.sass\n/* loader 1 + 2 */\n',
+			);
 
 			await restoreFolderContent(_target_cwd, targetFolderContent);
 		});
@@ -674,22 +726,54 @@ describe('helpers', () => {
 			const rule_condition = path.resolve('./test.sass');
 
 			it('should match the same filename in the same directory, but only with absolute path', () => {
-				expect(test_rule_condition(path.resolve('./test.sass'), rule_condition, config)).toBe(true);
-				expect(test_rule_condition('./test.sass', rule_condition, config)).toBe(false);
+				expect(
+					test_rule_condition(
+						path.resolve('./test.sass'),
+						rule_condition,
+						config,
+					),
+				).toBe(true);
+				expect(test_rule_condition('./test.sass', rule_condition, config)).toBe(
+					false,
+				);
 
 				// this is the same
-				expect(test_rule_condition(path.resolve('test.sass'), rule_condition, config)).toBe(true);
-				expect(test_rule_condition('test.sass', rule_condition, config)).toBe(false);
+				expect(
+					test_rule_condition(
+						path.resolve('test.sass'),
+						rule_condition,
+						config,
+					),
+				).toBe(true);
+				expect(test_rule_condition('test.sass', rule_condition, config)).toBe(
+					false,
+				);
 			});
 
 			it('should not match other filename in the same directory', () => {
-				expect(test_rule_condition(path.resolve('./test.scss'), rule_condition, config)).toBe(false);
-				expect(test_rule_condition('./test.css', rule_condition, config)).toBe(false);
+				expect(
+					test_rule_condition(
+						path.resolve('./test.scss'),
+						rule_condition,
+						config,
+					),
+				).toBe(false);
+				expect(test_rule_condition('./test.css', rule_condition, config)).toBe(
+					false,
+				);
 			});
 
 			it('should not match the same filename in other directory', () => {
-				expect(test_rule_condition(path.resolve('../../test.sass'), rule_condition, config)).toBe(false);
-				expect(test_rule_condition('../../test.sass', rule_condition, config)).toBe(false);
+				expect(
+					test_rule_condition(
+						path.resolve('../../test.sass'),
+						rule_condition,
+						config,
+					),
+				).toBe(false);
+				expect(
+					test_rule_condition('../../test.sass', rule_condition, config),
+				).toBe(false);
 			});
 		});
 
@@ -699,25 +783,45 @@ describe('helpers', () => {
 			const sass_regexp1 = /\.s(a|c)ss$/;
 
 			it('should match .sass files', () => {
-				expect(test_rule_condition(path.resolve('./test.sass'), sass_regexp1, config)).toBe(true);
-				expect(test_rule_condition('./test.sass', sass_regexp1, config)).toBe(true);
+				expect(
+					test_rule_condition(
+						path.resolve('./test.sass'),
+						sass_regexp1,
+						config,
+					),
+				).toBe(true);
+				expect(test_rule_condition('./test.sass', sass_regexp1, config)).toBe(
+					true,
+				);
 			});
 
 			it('should match .scss files', () => {
-				expect(test_rule_condition(path.resolve('../../test.scss'), sass_regexp1, config)).toBe(true);
-				expect(test_rule_condition('../../test.scss', sass_regexp1, config)).toBe(true);
+				expect(
+					test_rule_condition(
+						path.resolve('../../test.scss'),
+						sass_regexp1,
+						config,
+					),
+				).toBe(true);
+				expect(
+					test_rule_condition('../../test.scss', sass_regexp1, config),
+				).toBe(true);
 			});
 
 			it('should not match .css files', () => {
-				expect(test_rule_condition(path.resolve('./test.css'), sass_regexp1, config)).toBe(false);
-				expect(test_rule_condition('./test.css', sass_regexp1, config)).toBe(false);
+				expect(
+					test_rule_condition(path.resolve('./test.css'), sass_regexp1, config),
+				).toBe(false);
+				expect(test_rule_condition('./test.css', sass_regexp1, config)).toBe(
+					false,
+				);
 			});
 		});
 
 		describe('should handle callback rules', async () => {
 			const config = await get_config();
 
-			it('should call the callback function with the file\'s source path', () => {
+			it("should call the callback function with the file's source path", () => {
 				const cb = vitest.fn();
 
 				test_rule_condition('filename.js', cb, config);
@@ -727,18 +831,26 @@ describe('helpers', () => {
 			});
 
 			it('should return the value of the callback function', () => {
-				expect(test_rule_condition('./example.js', () => true, config)).toBe(true);
-				expect(test_rule_condition('./example.js', () => false, config)).toBe(false);
+				expect(test_rule_condition('./example.js', () => true, config)).toBe(
+					true,
+				);
+				expect(test_rule_condition('./example.js', () => false, config)).toBe(
+					false,
+				);
 			});
 
 			// TODO This shouldn't be like this. We should convert the return value to boolean.
 			//  Even though `apply_rule_condition` will only accept true, and anything else will treated as false.
-			it('should allow any truthy/falsy return values for the callback\'s return value', () => {
-				// @ts-expect-error
-				expect(test_rule_condition('./example.js', () => null, config)).toBe(null);
-				// @ts-expect-error
-				expect(test_rule_condition('./example.js', () => undefined, config)).toBe(undefined);
-				// @ts-expect-error
+			it("should allow any truthy/falsy return values for the callback's return value", () => {
+				// @ts-expect-error Invalid `condition` value
+				expect(test_rule_condition('./example.js', () => null, config)).toBe(
+					null,
+				);
+				expect(
+					// @ts-expect-error Invalid `condition` value
+					test_rule_condition('./example.js', () => undefined, config),
+				).toBe(undefined);
+				// @ts-expect-error Invalid `condition` value
 				expect(test_rule_condition('./example.js', () => '', config)).toBe('');
 			});
 		});
@@ -749,36 +861,58 @@ describe('helpers', () => {
 			it('should handle array of rules', () => {
 				const file_path = path.resolve('./test.sass');
 
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(true);
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(
+					true,
+				);
 			});
 
 			it('should return true only when the source_path matches all of the rules', () => {
 				const file_path = path.resolve('./test.sass');
 
 				// OK
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.sass$/], config)).toBe(true);
+				expect(
+					test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.sass$/], config),
+				).toBe(true);
 
 				// At least one rule doesn't match
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.scss$/], config)).toBe(false);
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.sass$/, path.resolve('sub-folder/test.sass')], config)).toBe(false);
+				expect(
+					test_rule_condition(file_path, [/\.s(a|c)ss$/, /\.scss$/], config),
+				).toBe(false);
+				expect(
+					test_rule_condition(
+						file_path,
+						[/\.s(a|c)ss$/, /\.sass$/, path.resolve('sub-folder/test.sass')],
+						config,
+					),
+				).toBe(false);
 
 				// None of the rules match
-				expect(test_rule_condition(file_path, [/\.js$/, /\.scss$/], config)).toBe(false);
+				expect(
+					test_rule_condition(file_path, [/\.js$/, /\.scss$/], config),
+				).toBe(false);
 
 				// relative paths cannot be used as a rule
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/, 'test.sass'], config)).toBe(false);
+				expect(
+					test_rule_condition(file_path, [/\.s(a|c)ss$/, 'test.sass'], config),
+				).toBe(false);
 			});
 
 			it('should work normally for every rule condition type', () => {
 				const file_path = path.resolve('./test.sass');
 
-				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(true);
+				expect(test_rule_condition(file_path, [/\.s(a|c)ss$/], config)).toBe(
+					true,
+				);
 				expect(test_rule_condition(file_path, [file_path], config)).toBe(true);
 				expect(test_rule_condition(file_path, [() => true], config)).toBe(true);
 
 				expect(test_rule_condition(file_path, [/\.css$/], config)).toBe(false);
-				expect(test_rule_condition(file_path, ['test.sass'], config)).toBe(false);
-				expect(test_rule_condition(file_path, [() => false], config)).toBe(false);
+				expect(test_rule_condition(file_path, ['test.sass'], config)).toBe(
+					false,
+				);
+				expect(test_rule_condition(file_path, [() => false], config)).toBe(
+					false,
+				);
 			});
 
 			it('should call one callback only once', () => {
@@ -791,7 +925,7 @@ describe('helpers', () => {
 				expect(cb).toBeCalledWith(file_path);
 			});
 
-			it('shouldn\'t call the callback if there is a previous, non-matching rule in the chain', () => {
+			it("shouldn't call the callback if there is a previous, non-matching rule in the chain", () => {
 				const cb = vitest.fn();
 				const file_path = path.resolve('./test.sass');
 
@@ -806,160 +940,304 @@ describe('helpers', () => {
 		const config = await get_config();
 
 		it('should handle `rule.test`', () => {
-			expect(apply_rule_condition(path.resolve('file.sass'), {
-				test: /\.sass$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.sass'),
+					{
+						test: /\.sass$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.sass'), {
-				test: () => true,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.sass'),
+					{
+						test: () => true,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.js'), {
-				test: /\.css$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.js'),
+					{
+						test: /\.css$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
 		it('should handle `rule.include', () => {
-			expect(apply_rule_condition(path.resolve('file.sass'), {
-				include: /\.sass$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.sass'),
+					{
+						include: /\.sass$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.sass'), {
-				include: /\.scss$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.sass'),
+					{
+						include: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition(path.resolve('file.js'), {
-				include: () => false,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.js'),
+					{
+						include: () => false,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
 		it('should handle `rule.exclude`', () => {
 			// We should also use at least one matching condition in case of `exclude`, to get a truthy output.
 			// We use `test`, because that is weaker than `exclude`. `include` would supersede the exclusion rule.
-			expect(apply_rule_condition(path.resolve('file.sass'), {
-				test: () => true,
-				exclude: /\.scss$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.sass'),
+					{
+						test: () => true,
+						exclude: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				test: () => true,
-				exclude: /\.scss$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						test: () => true,
+						exclude: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition(path.resolve('file.js'), {
-				test: () => true,
-				exclude: () => true,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.js'),
+					{
+						test: () => true,
+						exclude: () => true,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
 		it('should keep the condition strength order - 1: include, 2: exclude, 3: test', () => {
 			// INCLUDE
 			// If a file is explicitly included, it _will_ be included - even if it is explicitly excluded
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				include: /\.scss$/,
-				exclude: /\.scss$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						include: /\.scss$/,
+						exclude: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				include: /\.scss$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						include: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				include: /\.scss$/,
-				test: /\.js$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						include: /\.scss$/,
+						test: /\.js$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
 			// EXCLUDE
 			// If a file is explicitly excluded, it _will_ be excluded - _unless it is explicitly included_
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				exclude: /\.scss$/,
-				include: /\.sass$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						exclude: /\.scss$/,
+						include: /\.sass$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				exclude: /\.scss$/,
-				test: /\.js$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						exclude: /\.scss$/,
+						test: /\.js$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				exclude: /\.scss$/,
-				include: /\.scss$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						exclude: /\.scss$/,
+						include: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
 			// TEST
 			// If the file is matched, it will be included - _unless it is explicitly included_
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				test: /\.scss$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						test: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				test: /\.scss$/,
-				exclude: /\.sass$/,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						test: /\.scss$/,
+						exclude: /\.sass$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition(path.resolve('file.scss'), {
-				test: /\.scss$/,
-				exclude: /\.scss$/,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.scss'),
+					{
+						test: /\.scss$/,
+						exclude: /\.scss$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
 		it('should accept only `true` as permissive callback value', () => {
-			expect(apply_rule_condition('file.js', {
-				test: () => true,
-				use: [],
-			}, config)).toBe(true);
+			expect(
+				apply_rule_condition(
+					'file.js',
+					{
+						test: () => true,
+						use: [],
+					},
+					config,
+				),
+			).toBe(true);
 
-			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
-				test: () => 1,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					'file.js',
+					{
+						// @ts-expect-error Invalid `test` return value
+						test: () => 1,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
-				test: () => undefined,
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					'file.js',
+					{
+						// @ts-expect-error Invalid `test` return value
+						test: () => undefined,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition('file.js', {
-				// @ts-expect-error
-				test: () => 'string',
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					'file.js',
+					{
+						// @ts-expect-error Invalid `test` return value
+						test: () => 'string',
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
-		it('shouldn\'t apply loader if none of the conditions are met', () => {
-			expect(apply_rule_condition('file.js', {
-				test: /\.ts$/,
-				exclude: /\.tsx$/,
-				include: /\.jsx$/,
-				use: [],
-			}, config)).toBe(false);
+		it("shouldn't apply loader if none of the conditions are met", () => {
+			expect(
+				apply_rule_condition(
+					'file.js',
+					{
+						test: /\.ts$/,
+						exclude: /\.tsx$/,
+						include: /\.jsx$/,
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 
-			expect(apply_rule_condition(path.resolve('file.txt'), {
-				test: /\.ts$/,
-				exclude: () => false,
-				include: path.resolve('sub-folder/file.txt'),
-				use: [],
-			}, config)).toBe(false);
+			expect(
+				apply_rule_condition(
+					path.resolve('file.txt'),
+					{
+						test: /\.ts$/,
+						exclude: () => false,
+						include: path.resolve('sub-folder/file.txt'),
+						use: [],
+					},
+					config,
+				),
+			).toBe(false);
 		});
 
 		// TODO Obviously this shouldn't be like this. Don't call `rule.test`, if the file is e.g. excluded.
@@ -969,15 +1247,19 @@ describe('helpers', () => {
 			const cb_test = vitest.fn();
 
 			// Test 1
-			apply_rule_condition(path.resolve('file.txt'), {
-				include: cb_include,
-				exclude: () => {
-					cb_exclude();
-					return true;
+			apply_rule_condition(
+				path.resolve('file.txt'),
+				{
+					include: cb_include,
+					exclude: () => {
+						cb_exclude();
+						return true;
+					},
+					test: cb_test,
+					use: [],
 				},
-				test: cb_test,
-				use: [],
-			}, config);
+				config,
+			);
 
 			expect(cb_include).toBeCalledTimes(1);
 			expect(cb_exclude).toBeCalledTimes(1);
@@ -985,15 +1267,19 @@ describe('helpers', () => {
 			expect(cb_test).toBeCalledTimes(1);
 
 			// Test 2
-			apply_rule_condition(path.resolve('file.txt'), {
-				include: () => {
-					cb_include();
-					return true;
+			apply_rule_condition(
+				path.resolve('file.txt'),
+				{
+					include: () => {
+						cb_include();
+						return true;
+					},
+					exclude: cb_exclude,
+					test: cb_test,
+					use: [],
 				},
-				exclude: cb_exclude,
-				test: cb_test,
-				use: [],
-			}, config);
+				config,
+			);
 
 			expect(cb_include).toBeCalledTimes(2);
 			// cb_exclude and cb_test shouldn't be called, because exclude already returned `true`
