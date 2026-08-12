@@ -24,7 +24,7 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
-    "lint": "eslint",
+    "lint": "eslint \"src/**/*\" --cache --max-warnings 0 --no-warn-ignored",
     "prettier": "prettier",
     "typescript": "tsc --noEmit",
     "test": "vitest --no-watch",
