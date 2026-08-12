@@ -17,15 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install PNPM + Node.js
+      - name: Install dependencies
         uses: pnpm/setup@v1
         with:
           version: 11
           runtime: node@24
           cache: true
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: ESLint
         run: npm run lint
