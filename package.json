@@ -33,6 +33,9 @@
     "release": "standard-version",
     "prepack": "npm run clean && npm run test && npm run build"
   },
+  "engines": {
+    "pnpm": "^11"
+  },
   "author": "Benedek Káldi",
   "license": "ISC",
   "dependencies": {
