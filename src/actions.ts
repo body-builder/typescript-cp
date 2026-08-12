@@ -158,7 +158,7 @@ export async function watch_files(
 
 	async function watch_idle_log(
 		msg: string = 'Watching files for changes',
-		// /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+		/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 		timeout: number = 1000,
 		clear: boolean = true,
 	): Promise<void> {
