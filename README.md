@@ -98,7 +98,7 @@ See `Config` and `Rule` types in `src/types.ts` for the complete reference.
 
 ## Contribution
 
-`$ npm run build`
+`$ pnpm run build`
 
 ---
 

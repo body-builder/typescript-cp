@@ -24,14 +24,28 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc",
-    "lint": "eslint",
+    "lint": "eslint \"src/**/*\" --cache --max-warnings 0 --no-warn-ignored",
     "prettier": "prettier",
     "typescript": "tsc --noEmit",
     "test": "vitest --no-watch",
     "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version",
-    "prepack": "npm run clean && npm run test && npm run build"
+    "prepack": "pnpm run clean && pnpm run test && pnpm run build"
+  },
+  "engines": {
+    "pnpm": "11",
+    "node": ">= 20"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">= 22"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11"
+    }
   },
   "author": "Benedek Káldi",
   "license": "ISC",
@@ -59,6 +73,6 @@
     "standard-version": "^9.5.0",
     "typescript": "^5.0.4",
     "typescript-eslint": "^8.66.0",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.10"
   }
 }
