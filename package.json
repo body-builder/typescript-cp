@@ -31,10 +31,21 @@
     "coverage": "vitest run --coverage",
     "clean": "git clean -Xdf --exclude=!node_modules --exclude=!.idea --exclude !.idea/workspace.xml",
     "release": "standard-version",
-    "prepack": "npm run clean && npm run test && npm run build"
+    "prepack": "pnpm run clean && pnpm run test && pnpm run build"
   },
   "engines": {
-    "pnpm": "^11"
+    "pnpm": "11",
+    "node": ">= 20"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">= 22"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11"
+    }
   },
   "author": "Benedek Káldi",
   "license": "ISC",

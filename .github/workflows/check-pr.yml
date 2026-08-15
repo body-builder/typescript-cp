@@ -25,10 +25,10 @@ jobs:
           cache: true
 
       - name: ESLint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Typescript
-        run: npm run typescript
+        run: pnpm run typescript
 
       - name: Test
-        run: npm run test
+        run: pnpm run test
