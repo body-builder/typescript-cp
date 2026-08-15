@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.11](https://github.com/body-builder/typescript-cp/compare/v0.1.10...v0.1.11) (2026-08-15)
+
+
+### Features
+
+* Upgrade `rimraf` to ^6 ([#25](https://github.com/body-builder/typescript-cp/issues/25)) ([02ef222](https://github.com/body-builder/typescript-cp/commit/02ef222fae300feb8c166af9d4a0d883ae1cb234))
+
 ### [0.1.10](https://github.com/body-builder/typescript-cp/compare/v0.1.9...v0.1.10) (2026-07-24)
 
 ### [0.1.9](https://github.com/body-builder/typescript-cp/compare/v0.1.8...v0.1.9) (2023-07-20)
